@@ -1,0 +1,53 @@
+participant_id,age,sex,bmi,systolic_bp,diastolic_bp,hba1c_mmol_mol,smoking_status,exercise_minutes_per_week,diabetes_status,age_flag,bmi_flag,systolic_bp_flag,diastolic_bp_flag,hba1c_flag,bmi_category,hba1c_group
+P001,32,Female,29.7,140,79,30,Former,240,No,False,False,False,False,False,Overweight,Below diabetes threshold
+P002,43,Male,21.2,153,75,49,Never,30,Yes,False,False,False,False,False,Healthy weight,Diabetes range
+P003,,Male,31.6,139,89,43,Former,150,No,False,False,False,False,False,Obesity,Increased risk range
+P004,42,Female,22,119,73,29,Never,150,No,False,False,False,False,False,Healthy weight,Below diabetes threshold
+P005,63,,31.9,131,82,31,Never,240,No,False,False,False,False,False,Obesity,Below diabetes threshold
+P006,46,Male,0,141,81,50,Never,90,Yes,False,True,False,False,False,Underweight,Diabetes range
+P007,51,Male,32.7,126,87,37,Never,210,No,False,False,False,False,False,Obesity,Below diabetes threshold
+P008,50,Female,28.7,500,74,47,Never,120,No,False,False,True,False,False,Overweight,Increased risk range
+P009,82,Female,28.5,139,77,-1,Never,210,Yes,False,False,False,False,True,Overweight,Below diabetes threshold
+P010,39,Male,27.6,148,83,43,Current,,No,False,False,False,False,False,Overweight,Increased risk range
+P011,33,Female,23.4,129,73,41,Current,150,No,False,False,False,False,False,Healthy weight,Below diabetes threshold
+P012,-5,Female,23.3,129,91,31,Never,30,No,True,False,False,False,False,Healthy weight,Below diabetes threshold
+P013,150,Male,24.9,137,83,28,Never,60,No,True,False,False,False,False,Healthy weight,Below diabetes threshold
+P014,53,Male,23.5,127,84,38,Never,0,No,False,False,False,False,False,Healthy weight,Below diabetes threshold
+P015,39,Male,20,106,94,43,,90,No,False,False,False,False,False,Healthy weight,Increased risk range
+P016,25,Female,29.3,130,84,28,Former,90,,False,False,False,False,False,Overweight,Below diabetes threshold
+P017,69,Female,35.8,128,79,28,Never,120,No,False,False,False,False,False,Obesity,Below diabetes threshold
+P018,68,Female,29.1,105,65,30,Never,150,No,False,False,False,False,False,Overweight,Below diabetes threshold
+P019,26,Female,85,156,84,28,Never,300,No,False,True,False,False,False,Obesity,Below diabetes threshold
+P020,44,Male,20,113,67,50,Never,210,Yes,False,False,False,False,False,Healthy weight,Diabetes range
+P021,72,Female,28.9,105,,28,Current,0,No,False,False,False,False,False,Overweight,Below diabetes threshold
+P022,63,,31.7,116,73,44,Never,60,No,False,False,False,False,False,Obesity,Increased risk range
+P023,60,Male,30.6,134,54,38,Former,90,No,False,False,False,False,False,Obesity,Below diabetes threshold
+P024,46,Female,29.3,55,84,39,Former,150,No,False,False,True,False,False,Overweight,Below diabetes threshold
+P025,21,Female,31.4,106,75,,Current,90,Yes,False,False,False,False,False,Obesity,
+P026,64,Male,24.9,160,73,36,Never,60,No,False,False,False,False,False,Healthy weight,Below diabetes threshold
+P027,42,Male,29.3,134,79,46,Never,300,No,False,False,False,False,False,Overweight,Increased risk range
+P028,59,Male,25.5,127,81,45,Never,90,No,False,False,False,False,False,Overweight,Increased risk range
+P029,57,Female,30.1,139,71,43,Never,180,No,False,False,False,False,False,Obesity,Increased risk range
+P030,49,Female,36.4,107,78,35,Never,240,No,False,False,False,False,False,Obesity,Below diabetes threshold
+P031,58,Male,30.4,126,85,46,Never,90,No,False,False,False,False,False,Obesity,Increased risk range
+P032,53,Male,28.5,109,72,39,Never,60,No,False,False,False,False,False,Overweight,Below diabetes threshold
+P033,45,Female,25.9,125,86,41,Current,120,No,False,False,False,False,False,Overweight,Below diabetes threshold
+P034,67,Male,28.2,125,77,51,Former,210,Yes,False,False,False,False,False,Overweight,Diabetes range
+P035,34,Female,35.6,130,69,32,Never,210,No,False,False,False,False,False,Obesity,Below diabetes threshold
+P036,59,Male,30.6,167,73,49,Former,0,Yes,False,False,False,False,False,Obesity,Diabetes range
+P037,49,Female,34.7,112,77,33,Current,30,No,False,False,False,False,False,Obesity,Below diabetes threshold
+P038,38,Male,22,146,81,46,Never,120,No,False,False,False,False,False,Healthy weight,Increased risk range
+P039,33,Female,24.7,118,61,44,Current,210,No,False,False,False,False,False,Healthy weight,Increased risk range
+P040,37,Male,21.2,136,74,41,Never,30,No,False,False,False,False,False,Healthy weight,Below diabetes threshold
+P041,53,Male,22.9,130,71,45,Current,120,No,False,False,False,False,False,Healthy weight,Increased risk range
+P042,19,Female,26.6,140,77,30,Former,120,No,False,False,False,False,False,Overweight,Below diabetes threshold
+P043,65,Male,27.7,118,74,43,Former,60,No,False,False,False,False,False,Overweight,Increased risk range
+P044,42,Female,29.8,136,85,35,Former,60,No,False,False,False,False,False,Overweight,Below diabetes threshold
+P045,53,Female,28.9,145,91,38,Never,0,No,False,False,False,False,False,Overweight,Below diabetes threshold
+P046,50,Male,26.8,132,69,40,Former,300,No,False,False,False,False,False,Overweight,Below diabetes threshold
+P047,46,Male,26.2,111,84,28,Never,60,No,False,False,False,False,False,Overweight,Below diabetes threshold
+P048,27,Female,28.1,100,83,50,Former,90,Yes,False,False,False,False,False,Overweight,Diabetes range
+P049,72,Female,28.1,104,79,28,Former,120,No,False,False,False,False,False,Overweight,Below diabetes threshold
+P050,82,Male,25.7,128,65,52,Never,120,Yes,False,False,False,False,False,Overweight,Diabetes range
+P011,33,Female,23.4,129,73,41,Current,150,No,False,False,False,False,False,Healthy weight,Below diabetes threshold
+P031,58,Male,30.4,131,85,46,Never,90,No,False,False,False,False,False,Obesity,Increased risk range

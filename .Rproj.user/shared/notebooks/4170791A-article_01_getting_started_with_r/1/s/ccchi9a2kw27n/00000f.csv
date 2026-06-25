@@ -1,0 +1,4 @@
+"0","health_data %>%"
+"0","  count(sex)"
+"2","Error in health_data %>% count(sex) : could not find function ""%>%""
+"

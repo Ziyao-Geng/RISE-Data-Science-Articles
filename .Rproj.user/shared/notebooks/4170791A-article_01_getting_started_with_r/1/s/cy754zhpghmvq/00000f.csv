@@ -1,0 +1,10 @@
+"0","ggplot(health_data, aes(x = bmi)) +"
+"0","  geom_histogram(binwidth = 2, colour = ""white"") +"
+"0","  labs("
+"0","    title = ""Distribution of BMI"","
+"0","    x = ""BMI"","
+"0","    y = ""Number of participants"""
+"0","  )"
+"2","Error in ggplot(health_data, aes(x = bmi)) : 
+  could not find function ""ggplot""
+"
