@@ -235,6 +235,8 @@ glimpse(health_data)
 
 Check the number of rows and columns:
 
+
+
 ```{r}
 nrow(health_data)
 ncol(health_data)
