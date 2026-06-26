@@ -1,0 +1,71 @@
+participant_id,age,sex,bmi,systolic_bp,diastolic_bp,hba1c_mmol_mol,smoking_status,exercise_minutes_per_week,diabetes_status,study_group,recruitment_site,notes
+P001,69.0,Female,16.5,102.0,90.0,82.0,Current,167.0,Yes,Intervention,Westmead,baseline visit
+P002,32.0,Male,33.3,101.0,99.0,30.0,Never,169.0,Yes,Intervention,RPA,
+P003,,Male,26.9,161.0,74.0,39.0,Never,392.0,No,Intervention,Royal North Shore,manual entry
+P004,38.0,Female,26.9,111.0,55.0,53.0,Never,282.0,No,Intervention,,baseline visit
+P005,41.0,Female,31.1,127.0,62.0,43.0,Never,121.0,No,Intervention,Concord,
+P006,20.0,Female,,142.0,100.0,78.0,Former,193.0,,,,baseline visit
+P007,39.0,Male,23.2,170.0,70.0,64.0,Never,4.0,Yes,Control,Westmead,
+P008,70.0,Male,29.3,153.0,68.0,49.0,Never,28.0,No,Intervention,RPA,baseline visit
+P009,19.0,Male,26.7,116.0,66.0,84.0,Former,164.0,Yes,Intervention,Concord,baseline visit
+P010,47.0,Female,28.7,142.0,77.0,56.0,Never,338.0,No,Intervention,Royal North Shore,
+P011,55.0,Female,26.6,132.0,69.0,41.0,Former,135.0,,Intervention,RPA,
+P012,19.0,,25.8,145.0,82.0,48.0,Former,364.0,Yes,Intervention,RPA,manual entry
+P013,81.0,Female,34.2,148.0,88.0,32.0,Former,320.0,No,Control,RPA,
+P014,77.0,,32.3,102.0,56.0,74.0,Never,341.0,Yes,Intervention,Royal North Shore,follow-up needed
+P015,38.0,Male,14.5,121.0,86.0,76.0,Current,,No,Intervention,Westmead,
+P016,50.0,Female,34.4,121.0,77.0,57.0,Former,326.0,No,Control,RPA,
+P017,75.0,Male,37.8,115.0,76.0,73.0,Former,216.0,No,,RPA,
+P018,,Female,33.2,124.0,79.0,79.0,Current,300.0,No,Control,Westmead,
+P019,66.0,Female,25.9,122.0,76.0,32.0,Never,131.0,No,Control,Westmead,
+P020,76.0,Female,23.6,158.0,76.0,39.0,Former,291.0,No,Intervention,Westmead,baseline visit
+P021,59.0,Female,,163.0,103.0,43.0,,69.0,No,Control,RPA,
+P022,77.0,Female,23.9,155.0,96.0,53.0,Current,251.0,No,Intervention,Royal North Shore,
+P023,32.0,Male,28.8,142.0,60.0,53.0,Former,414.0,No,Intervention,RPA,
+P024,79.0,Female,26.9,,69.0,75.0,Never,274.0,Yes,Intervention,Concord,
+P025,79.0,,33.1,98.0,97.0,48.0,Never,363.0,No,Intervention,Westmead,
+P026,64.0,Male,25.1,129.0,91.0,66.0,Former,181.0,No,Control,RPA,follow-up needed
+P027,79.0,Male,24.8,158.0,,63.0,Never,166.0,No,Intervention,Concord,baseline visit
+P028,68.0,Female,28.9,143.0,62.0,60.0,Never,90.0,No,Control,Westmead,
+P029,72.0,Female,36.7,111.0,98.0,57.0,Never,201.0,Yes,Intervention,Westmead,check source record
+P030,81.0,Male,27.4,138.0,98.0,,Never,345.0,Yes,Intervention,Concord,baseline visit
+P031,20.0,Male,24.9,124.0,59.0,50.0,Never,18.0,,Control,Westmead,
+P032,68.0,Male,31.3,140.0,93.0,85.0,Never,38.0,No,Intervention,Royal North Shore,manual entry
+P033,24.0,Female,30.6,100.0,58.0,37.0,Never,,No,Control,Concord,manual entry
+P034,38.0,Male,22.2,131.0,60.0,81.0,Former,172.0,No,Control,Royal North Shore,
+P035,56.0,Female,24.3,118.0,99.0,32.0,Never,140.0,Yes,Control,Royal North Shore,
+P036,,Male,32.5,140.0,86.0,63.0,Former,241.0,No,Intervention,Concord,check source record
+P037,21.0,Male,29.1,147.0,84.0,61.0,Current,219.0,Yes,Control,Royal North Shore,baseline visit
+P038,77.0,Male,14.7,154.0,101.0,79.0,Current,125.0,No,Intervention,Concord,
+P039,31.0,Male,,157.0,89.0,58.0,Former,57.0,No,Intervention,Westmead,baseline visit
+P040,26.0,Female,31.6,126.0,94.0,37.0,Former,147.0,Yes,Intervention,Westmead,baseline visit
+P041,70.0,Male,22.8,127.0,70.0,85.0,Never,316.0,No,Intervention,Westmead,baseline visit
+P042,19.0,Male,30.4,161.0,67.0,46.0,Never,382.0,,Intervention,Royal North Shore,baseline visit
+P043,77.0,,36.4,,104.0,85.0,,360.0,No,Intervention,Westmead,baseline visit
+P044,61.0,Female,29.0,119.0,96.0,59.0,Never,0.0,Yes,Control,Concord,
+P045,25.0,Male,23.9,148.0,84.0,28.0,Former,386.0,No,Control,Westmead,
+P046,64.0,Female,24.4,152.0,,83.0,,347.0,No,Control,,follow-up needed
+P047,52.0,Female,27.1,161.0,71.0,32.0,Never,189.0,No,Intervention,RPA,check source record
+P048,53.0,Female,28.9,140.0,73.0,72.0,Current,190.0,Yes,Control,Westmead,
+P049,67.0,Male,27.3,118.0,82.0,31.0,Current,368.0,Yes,Intervention,Westmead,follow-up needed
+P050,21.0,Female,29.5,126.0,80.0,43.0,Never,408.0,Yes,,Concord,baseline visit
+P051,19.0,Male,26.3,141.0,91.0,51.0,Never,311.0,Yes,Control,Westmead,
+P052,23.0,,27.9,117.0,80.0,43.0,Never,416.0,Yes,Control,RPA,baseline visit
+P053,71.0,Female,31.8,160.0,77.0,82.0,Current,116.0,Yes,Intervention,RPA,check source record
+P054,21.0,Female,21.7,121.0,63.0,29.0,Never,133.0,Yes,Intervention,RPA,follow-up needed
+P055,71.0,Male,27.5,96.0,66.0,76.0,,57.0,Yes,Intervention,Westmead,
+P056,80.0,Female,27.5,111.0,55.0,55.0,Former,43.0,No,Control,RPA,
+P057,35.0,Female,31.6,127.0,55.0,59.0,Never,172.0,No,Intervention,RPA,follow-up needed
+P058,61.0,Female,25.9,103.0,101.0,54.0,Current,159.0,Yes,Intervention,Royal North Shore,
+P059,51.0,Female,30.3,137.0,88.0,47.0,,172.0,Yes,Intervention,,
+P060,79.0,Male,32.5,142.0,86.0,51.0,,316.0,,Control,Westmead,
+P061,31.0,Female,17.8,133.0,102.0,39.0,Never,302.0,No,Control,Concord,
+P062,65.0,Female,32.8,136.0,79.0,77.0,Former,148.0,No,Intervention,Westmead,
+P063,32.0,Male,22.1,120.0,94.0,62.0,Current,79.0,No,Intervention,RPA,
+P064,79.0,Male,21.5,144.0,99.0,60.0,Former,373.0,No,,,
+P065,57.0,Male,12.6,119.0,55.0,60.0,,212.0,No,Intervention,Concord,
+P066,70.0,Male,23.0,118.0,70.0,78.0,Former,202.0,No,Control,Royal North Shore,baseline visit
+P067,41.0,Female,27.0,107.0,93.0,70.0,Current,251.0,Yes,Intervention,RPA,baseline visit
+P068,43.0,Female,25.1,154.0,59.0,64.0,Never,228.0,Yes,Control,Royal North Shore,
+P069,77.0,Male,24.7,101.0,76.0,39.0,Current,163.0,No,Intervention,Concord,check source record
+P070,58.0,Male,21.4,151.0,83.0,30.0,Former,226.0,Yes,Control,Concord,

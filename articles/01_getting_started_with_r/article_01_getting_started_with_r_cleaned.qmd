@@ -1,0 +1,679 @@
+---
+title: "Getting Started with R for Medical Research"
+subtitle: "A beginner-friendly introduction to reproducible data analysis"
+author: "RISE Education Team"
+# date: "2026-06-24"
+# categories: [R, medical research, data science, beginner]
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    code-fold: show
+    code-summary: "Show code"
+    code-tools: true
+    embed-resources: true
+    theme: cosmo
+execute:
+  echo: true
+  eval: true
+  warning: false
+  message: false
+editor: visual
+---
+
+::: callout-note
+## How to use this article
+
+This article is written for medical students who are new to coding.
+
+You can read it like a normal article, but the best way to learn is to open the Quarto file in RStudio and run each code chunk step by step.
+:::
+
+## 1. Why learn R as a medical student?
+
+R is one of the most widely used programming languages for statistics, data analysis, and data visualisation. For medical students, this matters because modern clinical practice and research both depend on interpreting data. Clinical trials, systematic reviews, audits, quality improvement projects, and epidemiological studies all require some degree of statistical thinking.
+
+The main advantage of R is **reproducibility**. In Excel, it is easy to delete a row, recode a value, or change a formula without leaving a clear record. In R, each step can be written as code: importing data, cleaning variables, handling missing values, running statistical tests, and creating figures. This makes your work easier to check, repeat, and improve.
+
+R also helps you become more independent in research. Instead of relying entirely on someone else to analyse your data, you can explore datasets yourself, check whether results make sense, and produce clear tables and figures for presentations, posters, and publications.
+
+## 2. What are R, RStudio, and Quarto?
+
+- **R** is the programming language. It performs calculations, reads data, runs statistical models, and creates plots.
+- **RStudio** is an integrated development environment, often shortened to **IDE**. It gives you a user-friendly place to write, run, and save R code.
+- **Quarto** lets you combine normal writing, R code, results, tables, and figures in one document. This is useful for writing reproducible research reports and teaching articles.
+
+## 3. Installing R and RStudio
+
+To start, install both R and RStudio.
+
+1.  Download and install [R](https://cran.rstudio.com/).
+2.  Download and install [RStudio](https://posit.co/download/rstudio-desktop/).
+3.  Open RStudio.
+
+When you open RStudio, you will usually see several panels:
+
+| RStudio panel | What it is used for |
+|----|----|
+| Source/script panel | Where you write and save code |
+| Console | Where code runs and results appear |
+| Environment | Where loaded datasets and stored objects appear |
+| Files/plots/packages/help | Where you view files, plots, packages, and help pages |
+
+## 4. Create a project folder
+
+Before analysing data, create a dedicated folder for your project. Keeping files organised from the beginning saves a lot of pain later. Future you will thank present you. Present you may not care yet, but future you definitely will.
+
+A simple project folder could look like this:
+
+``` text
+my_research_project/
+├── article_01_getting_started_with_r.qmd
+├── data/
+│   └── rise_sample_health_data.csv
+├── scripts/
+│   └── article_01_starter_code.R
+├── figures/
+└── results/
+```
+
+A good habit is to keep the original dataset in a `data/` folder and avoid editing it manually. Any cleaning steps should be written in R code so that the workflow can be checked and repeated.
+
+## 5. Your first R commands
+
+To create a code chunk in a Quarto file, use:
+
+- Mac: `Option + Command + I`
+- Windows: `Ctrl + Alt + I`
+
+You can write R code inside the chunk and run it using the green play button in the top-right corner of the chunk.
+
+Let us begin with simple calculations.
+
+```{r}
+# Addition
+2 + 2
+
+# Division
+10 / 5
+
+# Square root
+sqrt(25)
+```
+
+R can also store values as **objects**. An object is simply a named thing that R remembers.
+
+```{r}
+# Store a single number as an object called age
+age <- 24
+
+# Store another number as an object called height_cm
+height_cm <- 175
+```
+
+The symbol `<-` means “store this value as this name.”
+
+You can then reuse the objects later.
+
+```{r}
+# Add 1 year to the stored age
+age + 1
+
+# Convert height from centimetres to metres
+height_cm / 100
+```
+
+Text values need quotation marks.
+
+```{r}
+# Store a text value as an object
+patient_group <- "Control"
+```
+
+You can also store several values together in a **vector**.
+
+```{r}
+# Create a vector of ages
+ages <- c(21, 22, 24, 30, 28)
+```
+
+Here, `c()` means “combine.” It creates a vector containing multiple values.
+
+```{r}
+# Calculate simple summary statistics
+mean(ages)
+median(ages)
+range(ages)
+```
+
+## 6. Packages: extending what R can do
+
+Base R already does a lot, but many common data analysis tasks are easier with packages. A package is like an add-on that gives R extra functions.
+
+For beginner health data analysis, these packages are useful:
+
+| Package     | Why it is useful                               |
+|-------------|------------------------------------------------|
+| `tidyverse` | Data cleaning, manipulation, and visualisation |
+| `readr`     | Importing rectangular data, such as CSV files  |
+| `janitor`   | Cleaning column names and making quick tables  |
+
+You install a package once.
+
+```{r}
+#| label: install-packages
+#| eval: false
+
+# Run this only once on your own computer.
+# After installation, you do not need to reinstall the packages every time.
+install.packages("tidyverse")
+install.packages("janitor")
+```
+
+Then you load the packages each time you start a new R session.
+
+```{r}
+#| label: load-packages
+
+# Load packages needed for this article.
+# tidyverse includes ggplot2, dplyr, readr, tibble, and several other useful packages.
+library(tidyverse)
+library(janitor)
+```
+
+## 7. Loading a sample health dataset
+
+For this article, we will use a fictional teaching dataset called `rise_sample_health_data.csv`.
+
+Place the dataset in a folder called `data/` next to this Quarto file.
+
+``` text
+article_folder/
+├── article_01_getting_started_with_r.qmd
+└── data/
+    └── rise_sample_health_data.csv
+```
+
+The dataset contains fictional participant-level data.
+
+| Variable | Description | Variable type |
+|----|----|----|
+| `participant_id` | Unique participant identifier | Categorical/text |
+| `age` | Age in years | Continuous/numeric |
+| `sex` | Sex recorded as Male/Female | Categorical |
+| `bmi` | Body mass index | Continuous/numeric |
+| `systolic_bp` | Systolic blood pressure in mmHg | Continuous/numeric |
+| `diastolic_bp` | Diastolic blood pressure in mmHg | Continuous/numeric |
+| `hba1c_mmol_mol` | HbA1c in mmol/mol | Continuous/numeric |
+| `smoking_status` | Never, Former, or Current | Categorical |
+| `exercise_minutes_per_week` | Weekly exercise minutes | Continuous/numeric |
+| `diabetes_status` | Diabetes status recorded as Yes/No | Binary categorical |
+
+Now import the dataset.
+
+```{r}
+#| label: import-data
+
+# Store the file path in one object.
+# This makes the code easier to update if the file location changes later.
+data_path <- "data/rise_sample_health_data.csv"
+
+# Check that the file exists before trying to read it.
+# This gives a clearer error message if the file is in the wrong folder.
+if (!file.exists(data_path)) {
+  stop("Cannot find the dataset. Check that rise_sample_health_data.csv is inside the data/ folder.")
+}
+
+# Import the CSV file.
+# show_col_types = FALSE keeps the output cleaner when rendering the article.
+health_data <- read_csv(data_path, show_col_types = FALSE)
+```
+
+The object `health_data` now contains the dataset.
+
+## 8. Cleaning column names
+
+Column names from real datasets are often inconsistent. For example, they may contain spaces, capital letters, or special characters. The `clean_names()` function from the `janitor` package converts names into a consistent format.
+
+```{r}
+#| label: clean-column-names
+
+# Clean column names into snake_case.
+# Example: "Systolic BP" would become "systolic_bp".
+health_data <- health_data %>%
+  clean_names()
+
+# Display the cleaned column names.
+names(health_data)
+```
+
+In this article, the dataset already has clean names, but this is still a useful habit.
+
+## 9. Inspecting the dataset
+
+Before analysis, inspect the dataset. This helps you understand what each row and column represents, whether variables have been imported correctly, and whether any values look strange.
+
+```{r}
+#| label: inspect-first-rows
+
+# View the first 6 rows.
+head(health_data)
+```
+
+```{r}
+#| label: inspect-structure
+
+# View each column, its data type, and a preview of values.
+glimpse(health_data)
+```
+
+```{r}
+#| label: inspect-dimensions
+
+# Count rows and columns.
+nrow(health_data)
+ncol(health_data)
+
+# dim() returns both: number of rows first, then number of columns.
+dim(health_data)
+```
+
+```{r}
+#| label: inspect-summary
+
+# Generate a quick summary of each variable.
+summary(health_data)
+```
+
+These commands help you answer basic but important questions:
+
+- How many participants are in the dataset?
+- What variables are available?
+- Are the variable names clear?
+- Are numeric variables being read as numbers?
+- Are categorical variables being read as text?
+- Do any values look impossible or suspicious?
+
+## 10. Understanding rows, columns, and variables
+
+Most health research datasets are organised in a rectangular format:
+
+- Each **row** usually represents one participant, patient, sample, admission, or observation.
+- Each **column** represents one variable.
+- Each **cell** contains one value.
+
+For example, if a dataset has 60 participants and 10 variables, it should usually have 60 rows and 10 columns.
+
+Different variables need different kinds of summaries and statistical tests.
+
+| Variable type | Meaning | Examples |
+|----|----|----|
+| Continuous | Numeric measurement that can take many values | Age, BMI, blood pressure, HbA1c |
+| Categorical | Group or label | Sex, smoking status, treatment group |
+| Binary | Two-category variable | Diabetes yes/no, treatment yes/no |
+| Ordinal | Ordered category | Mild/moderate/severe, stage 1/2/3 |
+| Time-to-event | Time until an outcome occurs | Survival time, time to relapse |
+
+## 11. Checking missing values
+
+Missing values are common in real medical datasets. In R, missing data are usually shown as `NA`.
+
+```{r}
+#| label: check-missing-values
+
+# Count missing values in each column.
+colSums(is.na(health_data))
+```
+
+A slightly cleaner version is to turn the output into a table.
+
+```{r}
+#| label: missing-values-table
+
+missing_summary <- health_data %>%
+  summarise(across(everything(), ~ sum(is.na(.x)))) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "n_missing"
+  ) %>%
+  arrange(desc(n_missing))
+
+missing_summary
+```
+
+This table tells you which variables have missing data and how many values are missing.
+
+## 12. Creating simple summaries
+
+Once the data are loaded and inspected, you can create simple summaries.
+
+```{r}
+#| label: simple-numeric-summaries
+
+# Mean age.
+# na.rm = TRUE tells R to ignore missing values.
+mean(health_data$age, na.rm = TRUE)
+
+# Median BMI.
+median(health_data$bmi, na.rm = TRUE)
+
+# Range of systolic blood pressure.
+range(health_data$systolic_bp, na.rm = TRUE)
+```
+
+The `$` symbol selects one column from a dataset. For example, `health_data$age` means “the `age` column inside `health_data`.”
+
+You can also count categorical variables.
+
+```{r}
+#| label: count-categorical-variables
+
+# Count participants by sex.
+health_data %>%
+  count(sex)
+
+# Count participants by smoking status.
+health_data %>%
+  count(smoking_status)
+
+# Count participants by diabetes status.
+health_data %>%
+  count(diabetes_status)
+```
+
+The `%>%` symbol is called the **pipe**. It passes the result on the left into the next function. You can read it as “then.”
+
+For example:
+
+``` text
+health_data %>% count(sex)
+```
+
+means:
+
+``` text
+Take health_data, then count the number of rows in each sex category.
+```
+
+Now create a summary table by diabetes status.
+
+```{r}
+#| label: summary-by-diabetes-status
+
+# Summarise BMI and HbA1c by diabetes status.
+health_data %>%
+  group_by(diabetes_status) %>%
+  summarise(
+    n = n(),
+    mean_bmi = mean(bmi, na.rm = TRUE),
+    median_bmi = median(bmi, na.rm = TRUE),
+    mean_hba1c = mean(hba1c_mmol_mol, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+Notice the repeated use of `na.rm = TRUE`. This tells R to remove missing values when calculating the summary. If you do not include it and there are missing values, R may return `NA` instead of a number.
+
+## 13. Making your first plot
+
+R can create publication-quality figures. The `ggplot2` package, which is included in the tidyverse, is commonly used for data visualisation.
+
+The basic structure of a ggplot is:
+
+```{r}
+#| label: ggplot-template
+#| eval: false
+
+ggplot(data = dataset_name, aes(x = variable_name, y = variable_name)) +
+  geom_type_of_plot() +
+  labs(
+    title = "Plot title",
+    x = "X-axis label",
+    y = "Y-axis label"
+  )
+```
+
+You can think of a ggplot as being built in layers:
+
+| Layer | Meaning |
+|----|----|
+| `ggplot()` | Starts the plot |
+| `data = dataset_name` | Tells R which dataset to use |
+| `aes()` | Maps variables to visual features, such as x-axis, y-axis, colour, or fill |
+| `geom_*()` | Tells R what type of graph to draw |
+| `labs()` | Adds clear labels |
+| `theme_*()` | Changes the visual style |
+
+### Histogram
+
+A histogram shows the distribution of one continuous variable.
+
+```{r}
+#| label: plot-bmi-histogram
+#| fig-cap: "Distribution of BMI in the fictional RISE teaching dataset."
+
+ggplot(data = health_data, aes(x = bmi)) +
+  geom_histogram(binwidth = 2, colour = "white") +
+  labs(
+    title = "Distribution of BMI",
+    x = "BMI",
+    y = "Number of participants"
+  ) +
+  theme_minimal()
+```
+
+### Boxplot
+
+A boxplot compares the distribution of a continuous variable across groups.
+
+```{r}
+#| label: plot-bmi-boxplot
+#| fig-cap: "BMI by diabetes status in the fictional RISE teaching dataset."
+
+ggplot(data = health_data, aes(x = diabetes_status, y = bmi)) +
+  geom_boxplot() +
+  labs(
+    title = "BMI by diabetes status",
+    x = "Diabetes status",
+    y = "BMI"
+  ) +
+  theme_minimal()
+```
+
+### Scatterplot
+
+A scatterplot shows the relationship between two continuous variables.
+
+```{r}
+#| label: plot-bmi-hba1c-scatter
+#| fig-cap: "Relationship between BMI and HbA1c in the fictional RISE teaching dataset."
+
+ggplot(data = health_data, aes(x = bmi, y = hba1c_mmol_mol)) +
+  geom_point() +
+  labs(
+    title = "BMI and HbA1c",
+    x = "BMI",
+    y = "HbA1c (mmol/mol)"
+  ) +
+  theme_minimal()
+```
+
+At this stage, do not worry about making the plots perfect. The first goal is to make a plot appear and understand what it is showing.
+
+## 14. A simple research data workflow
+
+A basic research data workflow looks like this:
+
+1.  Define the research question.
+2.  Import the dataset.
+3.  Inspect the dataset.
+4.  Clean the data.
+5.  Summarise the data.
+6.  Visualise the data.
+7.  Choose an appropriate statistical test.
+8.  Interpret the result.
+9.  Report the finding clearly.
+
+The early steps matter more than beginners often realise. If the dataset is messy or misunderstood, a statistical test will not rescue the analysis. A good first question is not “Which test should I run?” It is “What does each row and column actually represent?”
+
+## 15. Common beginner mistakes
+
+### Forgetting quotation marks around file names
+
+Incorrect:
+
+``` text
+read_csv(data/rise_sample_health_data.csv)
+```
+
+Correct:
+
+```{r}
+#| label: correct-file-path-example
+#| eval: false
+
+read_csv("data/rise_sample_health_data.csv")
+```
+
+File paths are text, so they need quotation marks.
+
+### Using the wrong working directory
+
+If R cannot find your file, it may be looking in the wrong folder. One solution is to use an RStudio Project and keep your data folder inside the project.
+
+```{r}
+#| label: check-working-directory
+
+# Show the folder R is currently using as its starting location.
+getwd()
+```
+
+### Confusing uppercase and lowercase
+
+R is case-sensitive. These are different objects:
+
+``` text
+Health_Data
+health_data
+HEALTH_DATA
+```
+
+Choose simple lowercase names and use them consistently.
+
+### Forgetting to load packages
+
+If `read_csv()` does not work, you may not have loaded the package that contains it.
+
+```{r}
+#| label: load-readr-example
+#| eval: false
+
+library(readr)
+```
+
+Or load the tidyverse:
+
+```{r}
+#| label: load-tidyverse-example
+#| eval: false
+
+library(tidyverse)
+```
+
+### Editing raw data manually
+
+Avoid manually changing the original spreadsheet without documentation. If you change data by hand, it becomes harder to explain what was changed and why.
+
+A better approach is:
+
+- keep the raw dataset untouched;
+- write cleaning steps in R code;
+- save a cleaned dataset separately.
+
+## 16. Mini activity: load and inspect your first dataset
+
+Download the sample dataset and try the following activity.
+
+### Task
+
+1.  Open RStudio.
+2.  Create a new RStudio Project.
+3.  Create a new Quarto document or R script.
+4.  Load the `tidyverse` and `janitor` packages.
+5.  Import `rise_sample_health_data.csv`.
+6.  View the first few rows.
+7.  Count the number of rows and columns.
+8.  Identify which variables are continuous and which are categorical.
+9.  Write down one possible research question using the dataset.
+
+### Starter code
+
+```{r}
+#| label: mini-activity-starter-code
+#| eval: false
+
+# Load packages
+library(tidyverse)
+library(janitor)
+
+# Import data
+health_data <- read_csv("data/rise_sample_health_data.csv", show_col_types = FALSE)
+
+# Clean column names
+health_data <- health_data %>%
+  clean_names()
+
+# Inspect data
+head(health_data)
+glimpse(health_data)
+summary(health_data)
+
+# Check dimensions and names
+nrow(health_data)
+ncol(health_data)
+names(health_data)
+
+# Count missing values
+colSums(is.na(health_data))
+```
+
+### Reflection questions
+
+- What does each row represent?
+- Which variables are continuous?
+- Which variables are categorical?
+- Are there any values that look strange?
+- Are there any missing values?
+- What research questions could you ask using this dataset?
+
+## 17. What comes next?
+
+Loading the dataset is only the beginning. Real research datasets are often messy. Common problems include missing values, inconsistent labels, duplicate rows, impossible values, and unclear column names.
+
+In the next article, we will use a messier version of this same sample dataset and walk through how to clean it step by step.
+
+::: callout-tip
+## Key takeaway
+
+R is not just a statistics calculator. It is a way to make your research workflow clearer, safer, and more reproducible. Start small: load the data, inspect it, and understand what each row and column means.
+:::
+
+## Appendix: beginner glossary
+
+| Term | Meaning |
+|----|----|
+| Object | Something stored in R, such as a number, word, vector, or dataset |
+| Function | A command that performs an action, such as `mean()` or `summary()` |
+| Argument | Information you give to a function |
+| Vector | A sequence of values, such as several ages |
+| Data frame | A table-like object, similar to a spreadsheet |
+| Package | An add-on that gives R extra functions |
+| Pipe | A symbol that passes one result into the next step |
+| Missing value | A value that is absent from the dataset, usually shown as `NA` in R |
+
+## Downloadable resources
+
+- [`rise_sample_health_data.csv`](data/rise_sample_health_data.csv)
+- [`article_01_starter_code.R`](scripts/article_01_starter_code.R)

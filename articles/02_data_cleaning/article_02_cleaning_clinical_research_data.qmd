@@ -1,0 +1,705 @@
+---
+title: "Cleaning Clinical Research Data in R"
+subtitle: "How to turn a messy spreadsheet into an analysis-ready dataset"
+author: "RISE Education Team"
+# date: "2026-06-26"
+# categories: [R, medical research, data cleaning, reproducibility, beginner]
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    code-fold: show
+    code-summary: "Show code"
+    code-tools: true
+    embed-resources: true
+    theme: cosmo
+execute:
+  echo: true
+  eval: true
+  warning: false
+  message: false
+editor: visual
+---
+
+::: callout-note
+## How to use this article
+
+This article is designed for medical students and early-stage researchers who are new to R.
+
+You can read it as a normal article, or you can copy the code chunks into RStudio and run them step by step.
+:::
+
+## 1. Why data cleaning matters in medical research
+
+Real research datasets are rarely clean. A spreadsheet may look organised at first glance, but it can still contain problems that quietly damage the analysis.
+
+Common examples include:
+
+- inconsistent column names;
+- missing values;
+- duplicate participants;
+- inconsistent category labels;
+- impossible biological values;
+- numbers accidentally stored as text;
+- unclear variable coding.
+
+In medical research, data cleaning is not just administrative work. It is part of the scientific method. Before asking, "Which statistical test should I run?", we first need to ask, "Can I trust this dataset?"
+
+R is useful because every cleaning step can be written as code. This means the work can be checked, repeated, improved, and shared with supervisors or collaborators.
+
+::: callout-tip
+## Main idea
+
+Do not overwrite the raw dataset. Keep the original file untouched, write your cleaning steps in code, and save a cleaned version separately.
+:::
+
+## 2. The messy sample dataset
+
+In this article, we will use a fictional teaching dataset called `rise_sample_health_data_messy.csv`.
+
+The dataset contains participant-level health data with deliberate problems added for teaching purposes.
+
+| Variable | What it represents | Example problem |
+|---|---|---|
+| `Participant ID` | Participant identifier | Extra spaces and duplicate IDs |
+| `Age` | Age in years | Missing values or impossible values such as 250 |
+| `Sex` | Sex recorded in the dataset | `Male`, `male`, `M`, `F`, unclear values |
+| `BMI` | Body mass index | Missing values or impossible values |
+| `Systolic BP` | Systolic blood pressure | Values written as text, such as `142 mmHg` |
+| `HbA1c (mmol/mol)` | HbA1c | Values written as text, such as `48 mmol/mol` |
+| `Smoking Status` | Smoking history | Inconsistent labels such as `Never`, `N`, `ex-smoker` |
+| `Diabetes Status` | Diabetes status | Inconsistent labels such as `Yes`, `Y`, `T2DM`, `No` |
+
+The aim is to turn this messy dataset into an analysis-ready dataset.
+
+## 3. Recommended project folder structure
+
+A clean folder structure makes research code much easier to manage.
+
+```text
+article_02_data_cleaning/
+├── article_02_cleaning_clinical_research_data.qmd
+├── data_raw/
+│   └── rise_sample_health_data_messy.csv
+├── data_cleaned/
+│   └── rise_sample_health_data_cleaned.csv
+├── scripts/
+│   └── article_02_cleaning_code.R
+└── outputs/
+    ├── data_cleaning_summary.csv
+    ├── duplicate_participant_report.csv
+    ├── missing_value_summary.csv
+    ├── suspicious_values_report.csv
+    └── variable_dictionary.csv
+```
+
+The key idea is simple:
+
+- `data_raw/` contains the original dataset;
+- `data_cleaned/` contains the cleaned dataset;
+- `scripts/` contains reusable R code;
+- `outputs/` contains useful reports generated during cleaning.
+
+## 4. Load packages
+
+We will use two main packages.
+
+- `tidyverse` helps us import, clean, summarise, and visualise data.
+- `janitor` helps us clean column names and create quick tables.
+
+You only need to install packages once:
+
+```{r install-packages}
+#| eval: false
+# Run this only if the packages are not already installed.
+install.packages("tidyverse")
+install.packages("janitor")
+```
+
+Load the packages each time you start a new R session:
+
+```{r load-packages}
+library(tidyverse)
+library(janitor)
+```
+
+## 5. Create folders for cleaned data and outputs
+
+Before saving files later, we should make sure the output folders exist.
+
+```{r create-folders}
+# Create folders if they do not already exist.
+# showWarnings = FALSE prevents R from complaining if the folder already exists.
+dir.create("data_cleaned", showWarnings = FALSE)
+dir.create("outputs", showWarnings = FALSE)
+```
+
+## 6. Import the raw dataset
+
+We will import the raw CSV file from the `data_raw/` folder.
+
+This time, we intentionally import all columns as text first. This is a safe beginner-friendly approach for messy datasets because it allows us to inspect the data before forcing R to treat variables as numeric or categorical.
+
+```{r import-raw-data}
+# Store the raw data path in one object.
+# This makes the file path easier to reuse and update.
+raw_data_path <- "data_raw/rise_sample_health_data_messy.csv"
+
+# Check that the file exists before trying to read it.
+# This gives a clearer error message if the file is in the wrong folder.
+if (!file.exists(raw_data_path)) {
+  stop("Cannot find the raw dataset. Check that it is inside the data_raw/ folder.")
+}
+
+# Import the dataset.
+# col_types = cols(.default = col_character()) keeps all columns as text at first.
+# This is useful when a messy column contains mixed values such as '142 mmHg'.
+raw_data <- read_csv(
+  file = raw_data_path,
+  col_types = cols(.default = col_character()),
+  na = c("", "NA", "N/A", "Unknown", "Not recorded", "not available")
+)
+```
+
+## 7. Inspect the raw dataset
+
+Before cleaning anything, we should inspect the dataset.
+
+```{r inspect-raw-data}
+# Look at the first few rows.
+head(raw_data)
+
+# Check the structure of the dataset.
+glimpse(raw_data)
+
+# Check the number of rows and columns.
+dim(raw_data)
+
+# Check the original column names.
+names(raw_data)
+```
+
+These commands help us answer:
+
+- How many rows and columns are there?
+- What are the variable names?
+- Are the variable names easy to use in R?
+- Are numeric variables currently stored as text?
+- Do any values already look strange?
+
+## 8. Count missing values before cleaning
+
+A missing value means that the data point is not available. In R, missing values are usually represented as `NA`.
+
+```{r missing-values-before-cleaning}
+# Count missing values in each column of the raw dataset.
+missing_before_cleaning <- raw_data %>%
+  summarise(across(everything(), ~ sum(is.na(.x)))) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "missing_n"
+  ) %>%
+  arrange(desc(missing_n))
+
+missing_before_cleaning
+```
+
+What is happening here?
+
+- `summarise()` creates summary values.
+- `across(everything(), ...)` applies the same calculation to every column.
+- `is.na()` checks whether a value is missing.
+- `sum(is.na(.x))` counts how many missing values are in each column.
+- `pivot_longer()` turns the result into a cleaner table.
+
+## 9. Clean column names
+
+Raw spreadsheets often have column names with spaces, capital letters, and brackets. These are readable for humans but annoying to use in R.
+
+For example, `Systolic BP` becomes easier to use after being cleaned to `systolic_bp`.
+
+```{r clean-column-names}
+# clean_names() converts column names to a consistent R-friendly style.
+# For example, 'Systolic BP' becomes 'systolic_bp'.
+clean_data <- raw_data %>%
+  clean_names()
+
+# Compare the cleaned column names.
+names(clean_data)
+```
+
+This is usually one of the first cleaning steps in a project.
+
+## 10. Clean participant IDs and text spacing
+
+Before checking for duplicate participants, we should clean the participant IDs.
+
+For example, `" P024 "` and `"P024"` should be treated as the same participant.
+
+```{r clean-text-spacing}
+clean_data <- clean_data %>%
+  mutate(
+    # Remove extra spaces and convert IDs to uppercase.
+    participant_id = str_squish(participant_id),
+    participant_id = str_to_upper(participant_id),
+
+    # Remove unnecessary spaces from all other text columns.
+    across(where(is.character), str_squish)
+  )
+```
+
+Useful functions:
+
+- `str_squish()` removes extra spaces;
+- `str_to_upper()` converts text to uppercase;
+- `across(where(is.character), ...)` applies a function to all text columns.
+
+## 11. Check duplicate participants
+
+A duplicate participant means the same participant ID appears more than once.
+
+Duplicates are common in real datasets. They can happen because of repeated data entry, merging datasets, or exporting data from multiple sources.
+
+```{r duplicate-check}
+# Count how many times each participant ID appears.
+duplicate_participants <- clean_data %>%
+  count(participant_id, name = "n_rows") %>%
+  filter(n_rows > 1)
+
+duplicate_participants
+```
+
+::: callout-warning
+## Important caution
+
+In a real research project, do not delete duplicates automatically without checking why they exist. Sometimes a repeated ID may represent a genuine repeated visit or follow-up record. In this teaching dataset, each row is meant to represent one participant, so we will keep one row per participant.
+:::
+
+```{r remove-duplicates}
+# Keep one row for each participant ID.
+# .keep_all = TRUE keeps the other variables from the first matching row.
+clean_data <- clean_data %>%
+  distinct(participant_id, .keep_all = TRUE)
+```
+
+## 12. Convert numeric variables
+
+Some variables should be numeric, but they may have been imported as text because the raw column contained values such as `"142 mmHg"` or `"48 mmol/mol"`.
+
+We can use `parse_number()` to extract the numeric part of a value.
+
+```{r convert-numeric-variables}
+clean_data <- clean_data %>%
+  mutate(
+    age = parse_number(age),
+    bmi = parse_number(bmi),
+    systolic_bp = parse_number(systolic_bp),
+    diastolic_bp = parse_number(diastolic_bp),
+    hba1c_mmol_mol = parse_number(hba1c_mmol_mol),
+    exercise_minutes_per_week = parse_number(exercise_minutes_per_week)
+  )
+```
+
+Now check the structure again:
+
+```{r inspect-after-numeric-conversion}
+glimpse(clean_data)
+```
+
+Numeric variables are needed for means, medians, graphs, and many statistical tests.
+
+## 13. Standardise categorical variables
+
+Categorical variables often contain inconsistent labels.
+
+For example, diabetes status might be recorded as `Yes`, `Y`, `T2DM`, `No`, `N`, or `no diabetes`.
+
+The goal is to turn these messy labels into consistent categories.
+
+### Clean sex
+
+```{r clean-sex}
+clean_data <- clean_data %>%
+  mutate(
+    sex = str_to_lower(sex),
+    sex = case_when(
+      sex %in% c("male", "m", "man") ~ "Male",
+      sex %in% c("female", "f", "woman") ~ "Female",
+      TRUE ~ NA_character_
+    )
+  )
+
+clean_data %>% count(sex)
+```
+
+### Clean smoking status
+
+```{r clean-smoking-status}
+clean_data <- clean_data %>%
+  mutate(
+    smoking_status = str_to_lower(smoking_status),
+    smoking_status = case_when(
+      smoking_status %in% c("never", "never smoker", "n") ~ "Never",
+      smoking_status %in% c("former", "ex-smoker", "ex smoker", "f", "quit") ~ "Former",
+      smoking_status %in% c("current", "current smoker", "c") ~ "Current",
+      TRUE ~ NA_character_
+    )
+  )
+
+clean_data %>% count(smoking_status)
+```
+
+### Clean diabetes status
+
+```{r clean-diabetes-status}
+clean_data <- clean_data %>%
+  mutate(
+    diabetes_status = str_to_lower(diabetes_status),
+    diabetes_status = case_when(
+      diabetes_status %in% c("yes", "y", "t2dm", "type 2 diabetes") ~ "Yes",
+      diabetes_status %in% c("no", "n", "no diabetes") ~ "No",
+      TRUE ~ NA_character_
+    )
+  )
+
+clean_data %>% count(diabetes_status)
+```
+
+### Clean study group and recruitment site
+
+```{r clean-other-categories}
+clean_data <- clean_data %>%
+  mutate(
+    study_group = str_to_lower(study_group),
+    study_group = case_when(
+      study_group %in% c("control", "c") ~ "Control",
+      study_group %in% c("intervention", "i") ~ "Intervention",
+      TRUE ~ NA_character_
+    ),
+
+    recruitment_site = str_to_lower(recruitment_site),
+    recruitment_site = case_when(
+      recruitment_site == "rpa" ~ "RPA",
+      recruitment_site == "westmead" ~ "Westmead",
+      recruitment_site == "concord" ~ "Concord",
+      recruitment_site == "royal north shore" ~ "Royal North Shore",
+      TRUE ~ NA_character_
+    )
+  )
+
+clean_data %>% count(study_group)
+clean_data %>% count(recruitment_site)
+```
+
+Useful functions:
+
+- `str_to_lower()` reduces problems caused by inconsistent capitalisation;
+- `case_when()` recodes messy values into standard categories;
+- `TRUE ~ NA_character_` means that anything unexpected becomes missing for review.
+
+## 14. Check impossible or suspicious values
+
+A value can be numeric but still biologically implausible.
+
+For example:
+
+- age of 250 years;
+- BMI of 5 kg/m^2;
+- systolic blood pressure of 310 mmHg;
+- negative exercise minutes.
+
+For this teaching dataset, we will use simple example cut-offs. These are not universal clinical rules. In a real project, cleaning decisions should be discussed with your supervisor and documented.
+
+```{r suspicious-value-report}
+# Create a report of values that look suspicious.
+suspicious_values <- bind_rows(
+  clean_data %>% filter(age < 0) %>% transmute(participant_id, variable = "age", value = as.character(age), issue = "Age is below 0 years"),
+  clean_data %>% filter(age > 120) %>% transmute(participant_id, variable = "age", value = as.character(age), issue = "Age is above 120 years"),
+  clean_data %>% filter(bmi < 10) %>% transmute(participant_id, variable = "bmi", value = as.character(bmi), issue = "BMI is below 10 kg/m^2"),
+  clean_data %>% filter(bmi > 80) %>% transmute(participant_id, variable = "bmi", value = as.character(bmi), issue = "BMI is above 80 kg/m^2"),
+  clean_data %>% filter(systolic_bp < 70) %>% transmute(participant_id, variable = "systolic_bp", value = as.character(systolic_bp), issue = "Systolic BP is below 70 mmHg"),
+  clean_data %>% filter(systolic_bp > 250) %>% transmute(participant_id, variable = "systolic_bp", value = as.character(systolic_bp), issue = "Systolic BP is above 250 mmHg"),
+  clean_data %>% filter(diastolic_bp < 40) %>% transmute(participant_id, variable = "diastolic_bp", value = as.character(diastolic_bp), issue = "Diastolic BP is below 40 mmHg"),
+  clean_data %>% filter(diastolic_bp > 150) %>% transmute(participant_id, variable = "diastolic_bp", value = as.character(diastolic_bp), issue = "Diastolic BP is above 150 mmHg"),
+  clean_data %>% filter(hba1c_mmol_mol < 15) %>% transmute(participant_id, variable = "hba1c_mmol_mol", value = as.character(hba1c_mmol_mol), issue = "HbA1c is below 15 mmol/mol"),
+  clean_data %>% filter(hba1c_mmol_mol > 160) %>% transmute(participant_id, variable = "hba1c_mmol_mol", value = as.character(hba1c_mmol_mol), issue = "HbA1c is above 160 mmol/mol"),
+  clean_data %>% filter(exercise_minutes_per_week < 0) %>% transmute(participant_id, variable = "exercise_minutes_per_week", value = as.character(exercise_minutes_per_week), issue = "Exercise minutes are below 0"),
+  clean_data %>% filter(exercise_minutes_per_week > 2000) %>% transmute(participant_id, variable = "exercise_minutes_per_week", value = as.character(exercise_minutes_per_week), issue = "Exercise minutes are above 2000 per week")
+)
+
+suspicious_values
+```
+
+## 15. Replace impossible values with missing values
+
+For this article, we will replace clearly impossible values with `NA`.
+
+This does not mean the value is unimportant. It means the value should not be used as if it were correct.
+
+```{r replace-impossible-values}
+clean_data <- clean_data %>%
+  mutate(
+    age = if_else(age < 0 | age > 120, NA_real_, age),
+    bmi = if_else(bmi < 10 | bmi > 80, NA_real_, bmi),
+    systolic_bp = if_else(systolic_bp < 70 | systolic_bp > 250, NA_real_, systolic_bp),
+    diastolic_bp = if_else(diastolic_bp < 40 | diastolic_bp > 150, NA_real_, diastolic_bp),
+    hba1c_mmol_mol = if_else(hba1c_mmol_mol < 15 | hba1c_mmol_mol > 160, NA_real_, hba1c_mmol_mol),
+    exercise_minutes_per_week = if_else(exercise_minutes_per_week < 0 | exercise_minutes_per_week > 2000, NA_real_, exercise_minutes_per_week)
+  )
+```
+
+Why use `NA_real_`?
+
+- `NA` means missing value.
+- `NA_real_` specifically means a missing numeric value.
+- This keeps the variable type consistent.
+
+## 16. Count missing values after cleaning
+
+After cleaning, we should check how many missing values remain.
+
+```{r missing-values-after-cleaning}
+missing_after_cleaning <- clean_data %>%
+  summarise(across(everything(), ~ sum(is.na(.x)))) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "missing_n"
+  ) %>%
+  mutate(
+    missing_percent = round(missing_n / nrow(clean_data) * 100, 1)
+  ) %>%
+  arrange(desc(missing_n))
+
+missing_after_cleaning
+```
+
+This table is useful because it shows which variables may need more careful discussion before analysis.
+
+## 17. Create a simple cleaning summary
+
+A good cleaning workflow should leave a short record of what happened.
+
+```{r cleaning-summary}
+data_cleaning_summary <- tibble(
+  step = c(
+    "Raw dataset",
+    "After removing duplicate participants",
+    "After cleaning impossible values"
+  ),
+  number_of_rows = c(
+    nrow(raw_data),
+    nrow(clean_data),
+    nrow(clean_data)
+  ),
+  number_of_columns = c(
+    ncol(raw_data),
+    ncol(clean_data),
+    ncol(clean_data)
+  ),
+  note = c(
+    "Original dataset exactly as imported from the CSV file",
+    "One row kept for each unique participant_id",
+    "Extreme or impossible values replaced with missing values"
+  )
+)
+
+data_cleaning_summary
+```
+
+::: callout-note
+## Small limitation of this simple summary
+
+This table is designed to be easy to read for beginners. In a more advanced project, you may want to track each cleaning step more precisely, including how many values were changed for each variable.
+:::
+
+
+
+## 18. Create a variable dictionary
+
+A variable dictionary is a table that explains what each variable means. This is useful when sharing a dataset with collaborators or future students.
+
+```{r create-variable-dictionary}
+variable_dictionary <- tribble(
+  ~variable, ~description, ~type, ~cleaning_note,
+  "participant_id", "Unique fictional participant identifier", "Text/categorical", "Cleaned to uppercase and stripped of extra spaces",
+  "age", "Age in years", "Continuous numeric", "Implausible values outside 0-120 replaced with missing",
+  "sex", "Sex recorded in the sample data", "Categorical", "Standardised to Male/Female; unclear values set to missing",
+  "bmi", "Body mass index in kg/m^2", "Continuous numeric", "Implausible values outside 10-80 replaced with missing",
+  "systolic_bp", "Systolic blood pressure in mmHg", "Continuous numeric", "Implausible values outside 70-250 replaced with missing",
+  "diastolic_bp", "Diastolic blood pressure in mmHg", "Continuous numeric", "Implausible values outside 40-150 replaced with missing",
+  "hba1c_mmol_mol", "HbA1c in mmol/mol", "Continuous numeric", "Parsed into numeric; very extreme values would be set to missing",
+  "smoking_status", "Smoking status", "Categorical", "Standardised to Never/Former/Current",
+  "exercise_minutes_per_week", "Self-reported exercise minutes per week", "Continuous numeric", "Negative or extreme values replaced with missing",
+  "diabetes_status", "Recorded diabetes status", "Binary categorical", "Standardised to Yes/No; unclear values set to missing",
+  "study_group", "Fictional study group", "Categorical", "Standardised to Control/Intervention",
+  "recruitment_site", "Fictional recruitment site", "Categorical", "Standardised site names",
+  "notes", "Free-text notes", "Text", "Kept as text; not used for analysis in this article"
+)
+
+variable_dictionary
+```
+
+## 19. Save the cleaned dataset and reports
+
+Now we save the cleaned dataset and the reports we created.
+
+```{r save-cleaned-files}
+# Save the cleaned dataset.
+write_csv(clean_data, "data_cleaned/rise_sample_health_data_cleaned.csv")
+
+# Save useful cleaning reports.
+write_csv(duplicate_participants, "outputs/duplicate_participant_report.csv")
+write_csv(suspicious_values, "outputs/suspicious_values_report.csv")
+write_csv(missing_after_cleaning, "outputs/missing_value_summary.csv")
+write_csv(data_cleaning_summary, "outputs/data_cleaning_summary.csv")
+write_csv(variable_dictionary, "outputs/variable_dictionary.csv")
+```
+
+The cleaned dataset can now be used in future analysis.
+
+## 20. Quick check of the cleaned dataset
+
+Before finishing, it is worth checking the cleaned dataset one more time.
+
+```{r final-check}
+glimpse(clean_data)
+summary(clean_data)
+```
+
+We can also create quick tables for categorical variables:
+
+```{r quick-categorical-tables}
+clean_data %>% tabyl(sex)
+clean_data %>% tabyl(smoking_status)
+clean_data %>% tabyl(diabetes_status)
+```
+
+And quick summaries for numeric variables:
+
+```{r quick-numeric-summary}
+clean_data %>%
+  summarise(
+    n = n(),
+    mean_age = mean(age, na.rm = TRUE),
+    median_bmi = median(bmi, na.rm = TRUE),
+    mean_systolic_bp = mean(systolic_bp, na.rm = TRUE),
+    median_hba1c = median(hba1c_mmol_mol, na.rm = TRUE)
+  )
+```
+
+## 21. Make a quick plot after cleaning
+
+A simple plot can help us check whether the data look reasonable after cleaning.
+
+```{r plot-bmi-after-cleaning}
+ggplot(clean_data, aes(x = bmi)) +
+  geom_histogram(binwidth = 2, colour = "white") +
+  labs(
+    title = "Distribution of BMI after cleaning",
+    x = "BMI",
+    y = "Number of participants"
+  )
+```
+
+Another useful plot is BMI by diabetes status:
+
+```{r plot-bmi-by-diabetes-after-cleaning}
+ggplot(clean_data, aes(x = diabetes_status, y = bmi)) +
+  geom_boxplot() +
+  labs(
+    title = "BMI by diabetes status after cleaning",
+    x = "Diabetes status",
+    y = "BMI"
+  )
+```
+
+These are not final publication figures. They are quick checks to make sure the cleaned data behave roughly as expected.
+
+## 22. Mini activity
+
+Try repeating the cleaning workflow yourself.
+
+### Task
+
+1. Open the messy dataset.
+2. Clean the column names.
+3. Count missing values.
+4. Find duplicate participant IDs.
+5. Standardise `sex`, `smoking_status`, and `diabetes_status`.
+6. Convert numeric variables using `parse_number()`.
+7. Check for impossible values in age, BMI, blood pressure, HbA1c, and exercise minutes.
+8. Replace clearly impossible values with `NA`.
+9. Save the cleaned dataset as a new CSV file.
+
+### Reflection questions
+
+- Which variable had the most missing values after cleaning?
+- Which values were biologically impossible?
+- Which cleaning decisions were obvious?
+- Which cleaning decisions would require supervisor input in a real project?
+- Why is it risky to manually clean data in Excel without saving the cleaning steps?
+
+## 23. Common beginner mistakes
+
+### Overwriting the raw dataset
+
+Do not save cleaned data over the original file. Keep raw data untouched.
+
+### Removing missing values too early
+
+Do not delete every row with a missing value at the start. First, understand which variables are missing and why.
+
+### Treating all duplicate IDs as errors
+
+A duplicate ID may be an error, but it may also represent repeated visits or follow-up measurements. Always check the study design.
+
+### Cleaning without documenting decisions
+
+If you replace values with `NA`, record why. Your future self will thank you. Future-you is already busy enough.
+
+## 24. What comes next?
+
+Now that we have a cleaned dataset, we can start asking research questions.
+
+In the next article, we can use this cleaned dataset to:
+
+- create a basic Table 1;
+- summarise continuous and categorical variables;
+- compare groups;
+- make clearer figures;
+- choose simple statistical tests.
+
+::: callout-tip
+## Key takeaway
+
+Data cleaning is where research analysis becomes trustworthy. Before running statistical tests, make sure each row, column, category, and numeric value means what you think it means.
+:::
+
+## Appendix: Beginner glossary
+
+| Term | Meaning |
+|---|---|
+| Raw data | The original dataset before cleaning |
+| Cleaned data | A dataset that has been checked, standardised, and prepared for analysis |
+| Missing value | A value that is not available, usually shown as `NA` in R |
+| Duplicate | A repeated row or repeated participant ID |
+| Categorical variable | A variable containing groups or labels, such as sex or smoking status |
+| Numeric variable | A variable containing numbers, such as age or BMI |
+| `mutate()` | A function used to create or modify columns |
+| `case_when()` | A function used to recode values based on conditions |
+| `parse_number()` | A function that extracts numbers from text |
+| `write_csv()` | A function used to save a dataset as a CSV file |
+
+## Downloadable resources
+
+- [`rise_sample_health_data_messy.csv`](data_raw/rise_sample_health_data_messy.csv)
+- [`rise_sample_health_data_cleaned.csv`](data_cleaned/rise_sample_health_data_cleaned.csv)
+- [`article_02_cleaning_code.R`](scripts/article_02_cleaning_code.R)
+- [`data_cleaning_summary.csv`](outputs/data_cleaning_summary.csv)
+- [`duplicate_participant_report.csv`](outputs/duplicate_participant_report.csv)
+- [`missing_value_summary.csv`](outputs/missing_value_summary.csv)
+- [`suspicious_values_report.csv`](outputs/suspicious_values_report.csv)
+- [`variable_dictionary.csv`](outputs/variable_dictionary.csv)

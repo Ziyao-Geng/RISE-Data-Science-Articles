@@ -1,0 +1,4 @@
+step,number_of_rows,number_of_columns,note
+Raw dataset,73,13,Original dataset exactly as imported from the CSV file
+After removing duplicate participants,70,13,One row kept for each unique participant_id
+After cleaning impossible values,70,13,Extreme or impossible values replaced with missing values

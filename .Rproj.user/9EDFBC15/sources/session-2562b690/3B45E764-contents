@@ -113,7 +113,9 @@ sqrt(25)
 R can also store values called **objects** by using the `<-` symbol. 
 
 ```{r}
+# assigning the age object as 24
 age <- 24
+# assigning the height_cm object as 175
 height_cm <- 175
 ```
 
@@ -122,23 +124,27 @@ The symbol `<-` means “store this value as this name.” In the code above, th
 You can then use the object later:
 
 ```{r}
+# adding 1 to the age object
 age + 1
+# divide the height_cm object by 100
 height_cm / 100
 ```
 
 Text values need quotation marks to be assigned to objects:
 
 ```{r}
+# assign the text 'Control' to the object patient group
 patient_group <- "Control"
 ```
 
 You can also store several values together in a **vector**:
 
 ```{r}
+# creating a vector object age with a vector of number
 ages <- c(21, 22, 24, 30, 28)
 ```
 
-Here, `c()` means “combine.” It creates a vector containing multiple values. We can then apply statistical analysis functions on the vectors:
+Here, `c()` means “combine.” It creates a vector containing multiple values. We can then apply statistical analysis functions on the vectors, basic functions include `mean()`, `median()`, and `range()`:
 
 ```{r}
 mean(ages)
