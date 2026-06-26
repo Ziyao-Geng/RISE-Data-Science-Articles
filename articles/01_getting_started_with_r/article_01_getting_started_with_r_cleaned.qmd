@@ -55,7 +55,7 @@ To start, install both R and RStudio.
 When you open RStudio, you will usually see several panels:
 
 | RStudio panel | What it is used for |
-|----|----|
+|------------------------------------|------------------------------------|
 | Source/script panel | Where you write and save code |
 | Console | Where code runs and results appear |
 | Environment | Where loaded datasets and stored objects appear |
@@ -198,7 +198,7 @@ article_folder/
 The dataset contains fictional participant-level data.
 
 | Variable | Description | Variable type |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | `participant_id` | Unique participant identifier | Categorical/text |
 | `age` | Age in years | Continuous/numeric |
 | `sex` | Sex recorded as Male/Female | Categorical |
@@ -308,7 +308,7 @@ For example, if a dataset has 60 participants and 10 variables, it should usuall
 Different variables need different kinds of summaries and statistical tests.
 
 | Variable type | Meaning | Examples |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Continuous | Numeric measurement that can take many values | Age, BMI, blood pressure, HbA1c |
 | Categorical | Group or label | Sex, smoking status, treatment group |
 | Binary | Two-category variable | Diabetes yes/no, treatment yes/no |
@@ -438,7 +438,7 @@ ggplot(data = dataset_name, aes(x = variable_name, y = variable_name)) +
 You can think of a ggplot as being built in layers:
 
 | Layer | Meaning |
-|----|----|
+|------------------------------------|------------------------------------|
 | `ggplot()` | Starts the plot |
 | `data = dataset_name` | Tells R which dataset to use |
 | `aes()` | Maps variables to visual features, such as x-axis, y-axis, colour, or fill |
@@ -663,7 +663,7 @@ R is not just a statistics calculator. It is a way to make your research workflo
 ## Appendix: beginner glossary
 
 | Term | Meaning |
-|----|----|
+|------------------------------------|------------------------------------|
 | Object | Something stored in R, such as a number, word, vector, or dataset |
 | Function | A command that performs an action, such as `mean()` or `summary()` |
 | Argument | Information you give to a function |

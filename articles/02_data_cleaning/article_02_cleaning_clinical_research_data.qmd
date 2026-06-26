@@ -61,7 +61,7 @@ In this article, we will use a fictional teaching dataset called `rise_sample_he
 The dataset contains participant-level health data with deliberate problems added for teaching purposes.
 
 | Variable | What it represents | Example problem |
-|---|---|---|
+|------------------------|------------------------|------------------------|
 | `Participant ID` | Participant identifier | Extra spaces and duplicate IDs |
 | `Age` | Age in years | Missing values or impossible values such as 250 |
 | `Sex` | Sex recorded in the dataset | `Male`, `male`, `M`, `F`, unclear values |
@@ -77,7 +77,7 @@ The aim is to turn this messy dataset into an analysis-ready dataset.
 
 A clean folder structure makes research code much easier to manage.
 
-```text
+``` text
 article_02_data_cleaning/
 ├── article_02_cleaning_clinical_research_data.qmd
 ├── data_raw/
@@ -297,7 +297,7 @@ clean_data <- clean_data %>%
     bmi = parse_number(bmi),
     systolic_bp = parse_number(systolic_bp),
     diastolic_bp = parse_number(diastolic_bp),
-    hba1c_mmol_mol = parse_number(hba1c_mmol_mol),
+    hba1c_mmol_mol = parse_number(hb_a1c_mmol_mol),
     exercise_minutes_per_week = parse_number(exercise_minutes_per_week)
   )
 ```
@@ -406,7 +406,7 @@ A value can be numeric but still biologically implausible.
 For example:
 
 - age of 250 years;
-- BMI of 5 kg/m^2;
+- BMI of 5 kg/m\^2;
 - systolic blood pressure of 310 mmHg;
 - negative exercise minutes.
 
@@ -515,8 +515,6 @@ data_cleaning_summary
 This table is designed to be easy to read for beginners. In a more advanced project, you may want to track each cleaning step more precisely, including how many values were changed for each variable.
 :::
 
-
-
 ## 18. Create a variable dictionary
 
 A variable dictionary is a table that explains what each variable means. This is useful when sharing a dataset with collaborators or future students.
@@ -624,15 +622,15 @@ Try repeating the cleaning workflow yourself.
 
 ### Task
 
-1. Open the messy dataset.
-2. Clean the column names.
-3. Count missing values.
-4. Find duplicate participant IDs.
-5. Standardise `sex`, `smoking_status`, and `diabetes_status`.
-6. Convert numeric variables using `parse_number()`.
-7. Check for impossible values in age, BMI, blood pressure, HbA1c, and exercise minutes.
-8. Replace clearly impossible values with `NA`.
-9. Save the cleaned dataset as a new CSV file.
+1.  Open the messy dataset.
+2.  Clean the column names.
+3.  Count missing values.
+4.  Find duplicate participant IDs.
+5.  Standardise `sex`, `smoking_status`, and `diabetes_status`.
+6.  Convert numeric variables using `parse_number()`.
+7.  Check for impossible values in age, BMI, blood pressure, HbA1c, and exercise minutes.
+8.  Replace clearly impossible values with `NA`.
+9.  Save the cleaned dataset as a new CSV file.
 
 ### Reflection questions
 
@@ -681,7 +679,7 @@ Data cleaning is where research analysis becomes trustworthy. Before running sta
 ## Appendix: Beginner glossary
 
 | Term | Meaning |
-|---|---|
+|------------------------------------|------------------------------------|
 | Raw data | The original dataset before cleaning |
 | Cleaned data | A dataset that has been checked, standardised, and prepared for analysis |
 | Missing value | A value that is not available, usually shown as `NA` in R |

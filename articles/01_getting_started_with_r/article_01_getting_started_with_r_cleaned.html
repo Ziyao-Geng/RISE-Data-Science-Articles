@@ -3127,7 +3127,7 @@ $ diabetes_status           &lt;chr&gt; &quot;No&quot;, &quot;No&quot;, &quot;Ye
 <span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="fu">getwd</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] &quot;/Users/ziyaogeng/Desktop/RISE Data Science Articles/RISE Data Science Articles/rise_article_01_getting_started_cleaned&quot;</code></pre>
+<pre><code>[1] &quot;/Users/ziyaogeng/Desktop/RISE Data Science Articles/RISE Data Science Articles/articles/01_getting_started_with_r&quot;</code></pre>
 </div>
 </div>
 </section>
@@ -3814,7 +3814,7 @@ HEALTH_DATA</code></pre>
 <span id="cb71-55"><a href="#cb71-55" aria-hidden="true" tabindex="-1"></a>When you open RStudio, you will usually see several panels:</span>
 <span id="cb71-56"><a href="#cb71-56" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb71-57"><a href="#cb71-57" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> RStudio panel <span class="pp">|</span> What it is used for <span class="pp">|</span></span>
-<span id="cb71-58"><a href="#cb71-58" aria-hidden="true" tabindex="-1"></a><span class="pp">|----|----|</span></span>
+<span id="cb71-58"><a href="#cb71-58" aria-hidden="true" tabindex="-1"></a><span class="pp">|------------------------------------|------------------------------------|</span></span>
 <span id="cb71-59"><a href="#cb71-59" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Source/script panel <span class="pp">|</span> Where you write and save code <span class="pp">|</span></span>
 <span id="cb71-60"><a href="#cb71-60" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Console <span class="pp">|</span> Where code runs and results appear <span class="pp">|</span></span>
 <span id="cb71-61"><a href="#cb71-61" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Environment <span class="pp">|</span> Where loaded datasets and stored objects appear <span class="pp">|</span></span>
@@ -3957,7 +3957,7 @@ HEALTH_DATA</code></pre>
 <span id="cb71-214"><a href="#cb71-214" aria-hidden="true" tabindex="-1"></a>The dataset contains fictional participant-level data.</span>
 <span id="cb71-215"><a href="#cb71-215" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb71-216"><a href="#cb71-216" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Variable <span class="pp">|</span> Description <span class="pp">|</span> Variable type <span class="pp">|</span></span>
-<span id="cb71-217"><a href="#cb71-217" aria-hidden="true" tabindex="-1"></a><span class="pp">|----|----|----|</span></span>
+<span id="cb71-217"><a href="#cb71-217" aria-hidden="true" tabindex="-1"></a><span class="pp">|------------------------|------------------------|------------------------|</span></span>
 <span id="cb71-218"><a href="#cb71-218" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`participant_id`</span> <span class="pp">|</span> Unique participant identifier <span class="pp">|</span> Categorical/text <span class="pp">|</span></span>
 <span id="cb71-219"><a href="#cb71-219" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`age`</span> <span class="pp">|</span> Age in years <span class="pp">|</span> Continuous/numeric <span class="pp">|</span></span>
 <span id="cb71-220"><a href="#cb71-220" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`sex`</span> <span class="pp">|</span> Sex recorded as Male/Female <span class="pp">|</span> Categorical <span class="pp">|</span></span>
@@ -4067,7 +4067,7 @@ HEALTH_DATA</code></pre>
 <span id="cb71-336"><a href="#cb71-336" aria-hidden="true" tabindex="-1"></a>Different variables need different kinds of summaries and statistical tests.</span>
 <span id="cb71-337"><a href="#cb71-337" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb71-338"><a href="#cb71-338" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Variable type <span class="pp">|</span> Meaning <span class="pp">|</span> Examples <span class="pp">|</span></span>
-<span id="cb71-339"><a href="#cb71-339" aria-hidden="true" tabindex="-1"></a><span class="pp">|----|----|----|</span></span>
+<span id="cb71-339"><a href="#cb71-339" aria-hidden="true" tabindex="-1"></a><span class="pp">|------------------------|------------------------|------------------------|</span></span>
 <span id="cb71-340"><a href="#cb71-340" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Continuous <span class="pp">|</span> Numeric measurement that can take many values <span class="pp">|</span> Age, BMI, blood pressure, HbA1c <span class="pp">|</span></span>
 <span id="cb71-341"><a href="#cb71-341" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Categorical <span class="pp">|</span> Group or label <span class="pp">|</span> Sex, smoking status, treatment group <span class="pp">|</span></span>
 <span id="cb71-342"><a href="#cb71-342" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Binary <span class="pp">|</span> Two-category variable <span class="pp">|</span> Diabetes yes/no, treatment yes/no <span class="pp">|</span></span>
@@ -4197,7 +4197,7 @@ HEALTH_DATA</code></pre>
 <span id="cb71-478"><a href="#cb71-478" aria-hidden="true" tabindex="-1"></a>You can think of a ggplot as being built in layers:</span>
 <span id="cb71-479"><a href="#cb71-479" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb71-480"><a href="#cb71-480" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Layer <span class="pp">|</span> Meaning <span class="pp">|</span></span>
-<span id="cb71-481"><a href="#cb71-481" aria-hidden="true" tabindex="-1"></a><span class="pp">|----|----|</span></span>
+<span id="cb71-481"><a href="#cb71-481" aria-hidden="true" tabindex="-1"></a><span class="pp">|------------------------------------|------------------------------------|</span></span>
 <span id="cb71-482"><a href="#cb71-482" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`ggplot()`</span> <span class="pp">|</span> Starts the plot <span class="pp">|</span></span>
 <span id="cb71-483"><a href="#cb71-483" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`data = dataset_name`</span> <span class="pp">|</span> Tells R which dataset to use <span class="pp">|</span></span>
 <span id="cb71-484"><a href="#cb71-484" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`aes()`</span> <span class="pp">|</span> Maps variables to visual features, such as x-axis, y-axis, colour, or fill <span class="pp">|</span></span>
@@ -4422,7 +4422,7 @@ HEALTH_DATA</code></pre>
 <span id="cb71-719"><a href="#cb71-719" aria-hidden="true" tabindex="-1"></a><span class="fu">## Appendix: beginner glossary</span></span>
 <span id="cb71-720"><a href="#cb71-720" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb71-721"><a href="#cb71-721" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Term <span class="pp">|</span> Meaning <span class="pp">|</span></span>
-<span id="cb71-722"><a href="#cb71-722" aria-hidden="true" tabindex="-1"></a><span class="pp">|----|----|</span></span>
+<span id="cb71-722"><a href="#cb71-722" aria-hidden="true" tabindex="-1"></a><span class="pp">|------------------------------------|------------------------------------|</span></span>
 <span id="cb71-723"><a href="#cb71-723" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Object <span class="pp">|</span> Something stored in R, such as a number, word, vector, or dataset <span class="pp">|</span></span>
 <span id="cb71-724"><a href="#cb71-724" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Function <span class="pp">|</span> A command that performs an action, such as <span class="in">`mean()`</span> or <span class="in">`summary()`</span> <span class="pp">|</span></span>
 <span id="cb71-725"><a href="#cb71-725" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Argument <span class="pp">|</span> Information you give to a function <span class="pp">|</span></span>
