@@ -30,23 +30,20 @@ You can read this article like a normal guide, but you will learn much more by o
 The original code and datasets used in this article are available on [GitHub](https://github.com/Ziyao-Geng/RISE-Data-Science-Articles), so you can download them and practice on the same files.
 :::
 
+## 1. Why learn R as a medical student?
 
+As a medical student, you may not think of yourself as someone who needs to code. However, if you are interested in research, you will eventually need to work with data.
 
-## 1. Why learn R as a medical student? 
-
-As a medical student, you may not think of yourself as someone who needs to code. However, if you are interested in research, you will eventually need to work with data. 
-
-R is one of the most widely used programming languages for statistics, data analysis, and data visualisation. It can help you summarise patterns, explore relationships between variables, run statistical tests, and create clear figures for presentations, posters, and papers. One of the biggest advantages of R is **reproducibility**. In a spreadsheet, it is easy to delete a row, change a value, or edit a formula without leaving a clear record. In R, each step of the analysis can be written as code. This means that other people can later see exactly what was done and repeat the same analysis if needed. 
+R is one of the most widely used programming languages for statistics, data analysis, and data visualisation. It can help you summarise patterns, explore relationships between variables, run statistical tests, and create clear figures for presentations, posters, and papers. One of the biggest advantages of R is **reproducibility**. In a spreadsheet, it is easy to delete a row, change a value, or edit a formula without leaving a clear record. In R, each step of the analysis can be written as code. This means that other people can later see exactly what was done and repeat the same analysis if needed.
 
 You do not need to become a professional programmer to benefit from R. Even learning the basics can make you more confident, independent, and prepared for research.
-
 
 ## 2. What are R, RStudio, and Quarto?
 
 Before we start with writing code, it helps to first understand the three related software.
 
 | Tool | What it does |
-|-----------------------------------|-----------------------------------|
+|----|----|
 | **R** | The programming language that performs calculations, reads data, runs statistical analyses, and creates plots. |
 | **RStudio** | The integrated development environment (**IDE**) where you write, run, and organise R code. |
 | **Quarto** | A document format that combines normal writing, R code, results, tables, and figures in one file. |
@@ -64,18 +61,15 @@ To start, install both R and RStudio.
 When you open RStudio, you will usually see several panels.
 
 | RStudio panel | What it is used for |
-|-----------------------------------|-----------------------------------|
+|----|----|
 | Source/script panel | Where you write and save code |
 | Console | Where code runs and results appear |
 | Environment | Where loaded datasets and stored objects appear |
 | Files/plots/packages/help | Where you view files, plots, packages, and help pages |
 
-
 ![Figure 1. The four main panels within RStudio](images/rstudio-panes.jpeg){fig-align="center"}
 
 Do not worry if the layout feels unfamiliar at first. RStudio looks busy because it is trying to show you your code, your results, your files, and your plots all at once. It becomes much less intimidating after we get familiar with it.
-
-
 
 ## 4. Create a simple project folder
 
@@ -109,8 +103,6 @@ In Quarto, R code is written inside code chunks. In RStudio, you can insert a co
 You can run a code chunk by clicking the green play button in the top-right corner of the chunk.
 
 ![Figure 2. Example Code Chunk](images/code_chunk.png){fig-align="center"}
-
-
 
 Let us begin with simple calculations.
 
@@ -148,7 +140,6 @@ You can also store text. The only thing different is that text values need quota
 patient_group <- "Control"
 print(patient_group)
 ```
-
 
 ## 6. Working with several values
 
@@ -259,7 +250,6 @@ health_data %>%
   head()
 ```
 
-
 ::: callout-important
 ## Important beginner point
 
@@ -274,9 +264,7 @@ health_data_small <- health_data %>%
 
 health_data_small
 ```
-
 :::
-
 
 ## 10. Inspect the dataset
 
@@ -354,7 +342,6 @@ median(health_data$bmi, na.rm = TRUE)
 range(health_data$systolic_bp, na.rm = TRUE)
 ```
 
-
 For categorical variables, we can count the number of rows in each category.
 
 ```{r}
@@ -379,7 +366,7 @@ Before making specific plots, it is useful to understand the basic structure of 
 
 Most `ggplot` code follows this general pattern:
 
-```r
+``` r
 # Basic structure of a ggplot
 ggplot(data = dataset_name, aes(x = variable_name, y = variable_name)) +
   geom_type_of_plot() +
@@ -393,11 +380,10 @@ ggplot(data = dataset_name, aes(x = variable_name, y = variable_name)) +
 
 There are three main parts:
 
-1. `ggplot()` starts the plot. Inside this function, we tell R which dataset to use.
-2. `aes()` means “aesthetic mapping”. This tells R which variables should appear on the x-axis and y-axis.
-3. `geom_...()` tells R what type of plot to draw. For example, `geom_histogram()` creates a histogram, `geom_boxplot()` creates a boxplot, and `geom_point()` creates a scatterplot.
-4. The `+` sign is used to add layers to the plot. In the above example, we can use the `+` sign to add labels and themes to the plot.
-
+1.  `ggplot()` starts the plot. Inside this function, we tell R which dataset to use.
+2.  `aes()` means “aesthetic mapping”. This tells R which variables should appear on the x-axis and y-axis.
+3.  `geom_...()` tells R what type of plot to draw. For example, `geom_histogram()` creates a histogram, `geom_boxplot()` creates a boxplot, and `geom_point()` creates a scatterplot.
+4.  The `+` sign is used to add layers to the plot. In the above example, we can use the `+` sign to add labels and themes to the plot.
 
 The following are some typical plots that we can create:
 
@@ -416,7 +402,6 @@ ggplot(health_data, aes(x = bmi)) +
   ) +
   theme_minimal()
 ```
-
 
 ### Boxplot
 
@@ -455,7 +440,7 @@ ggplot(health_data, aes(x = bmi, y = hba1c_mmol_mol)) +
 Here are some common early errors:
 
 | Mistake | Why it happens | How to fix it |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | Forgetting quotation marks around file paths | R thinks the file path is an object name | Use quotes: `"data/file.csv"` |
 | Forgetting to load a package | Functions are not available until the package is loaded | Run `library(tidyverse)` |
 | Object name mismatch | R is case-sensitive | Use the exact same spelling every time |
@@ -478,7 +463,8 @@ Try this activity before moving to the next article.
 10. Write one possible research question using this dataset.
 
 Here's the example code to get you started:
-```r
+
+``` r
 library(tidyverse)
 
 health_data <- read_csv("data/rise_sample_health_data.csv", show_col_types = FALSE)
@@ -509,19 +495,16 @@ In the next article, we will use a messy version of the same dataset and learn h
 - identify impossible or suspicious values;
 - save a cleaned dataset.
 
-
 ## Appendix
 
 You can download the files used in this article here:
 
-
 <ol>
-  <li><a href="https://github.com/Ziyao-Geng/RISE-Data-Science-Articles/tree/main/article_01_getting_started_with_r" target="_blank"> View all the files used to create this article on GitHub</a></li>
-  <li><a href="data/rise_sample_health_data.csv" download>Download the sample health dataset</a></li>
-  <li><a href="article_01_getting_started_with_r.qmd" download>Download the Quarto file used to create this article</a></li>
+
+<li><a href="https://github.com/Ziyao-Geng/RISE-Data-Science-Articles/tree/main/article_01_getting_started_with_r" target="_blank"> View all the files used to create this article on GitHub</a></li>
+
+<li><a href="data/rise_sample_health_data.csv" download>Download the sample health dataset</a></li>
+
+<li><a href="article_01_getting_started_with_r.qmd" download>Download the Quarto file used to create this article</a></li>
+
 </ol>
-
-
-
-
-

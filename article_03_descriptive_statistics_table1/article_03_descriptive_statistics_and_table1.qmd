@@ -41,7 +41,6 @@ Descriptive statistics help us answer basic questions:
 - Are the groups roughly similar or clearly different?
 - Do the distributions look sensible?
 
-
 ## 2. Load packages
 
 We will use a few beginner-friendly packages:
@@ -911,7 +910,6 @@ Using the cleaned dataset, try to answer these questions.
 3.  What is the median HbA1c by diabetes status?
 4.  Make a boxplot of systolic blood pressure by diabetes status.
 5.  Create a simple Table 1 by study group.
-
 
 ## 19. What comes next?
 
