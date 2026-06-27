@@ -1,0 +1,567 @@
+---
+title: "Descriptive Statistics and Table 1 in R"
+subtitle: "How to summarise cleaned clinical research data before formal analysis"
+author: "RISE Education Team"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    code-fold: show
+    code-summary: "Show code"
+    code-tools: true
+    embed-resources: true
+    theme: cosmo
+execute:
+  echo: true
+  eval: true
+  warning: false
+  message: false
+editor: visual
+---
+
+::: callout-note
+## How to use this article
+
+This article builds on Articles 1 and 2.
+
+Article 1 introduced R basics. Article 2 cleaned a messy clinical research dataset. In this article, we use the cleaned dataset to create descriptive summaries, a simple Table 1, exploratory plots, and first group comparisons.
+:::
+
+## 1. Why descriptive statistics come before statistical tests
+
+Before running formal statistical tests, we need to understand the dataset.
+
+Descriptive statistics help us answer basic questions:
+
+- How many participants are in the dataset?
+- What is the typical age, BMI, blood pressure, or HbA1c?
+- How many participants have diabetes?
+- Are there missing values?
+- Are the groups roughly similar or clearly different?
+- Do the distributions look sensible?
+
+This is not just a box-ticking exercise. Descriptive statistics are how we notice problems before they become embarrassing. Better to find a strange value now than after making a poster.
+
+## 2. Load packages
+
+We will use the same beginner-friendly packages as before.
+
+```{r}
+#| eval: false
+# Run this only if the packages are not already installed.
+install.packages("tidyverse")
+install.packages("janitor")
+```
+
+```{r}
+library(tidyverse)
+library(janitor)
+
+dir.create("outputs", showWarnings = FALSE)
+dir.create("figures", showWarnings = FALSE)
+```
+
+## 3. Import the cleaned dataset
+
+This article uses the cleaned dataset from Article 2.
+
+```{r}
+data_path <- "data/rise_sample_health_data_cleaned.csv"
+
+if (!file.exists(data_path)) {
+  stop("Cannot find the cleaned dataset. Check that rise_sample_health_data_cleaned.csv is inside the data/ folder.")
+}
+
+clean_data <- read_csv(data_path, show_col_types = FALSE)
+```
+
+Inspect the data.
+
+```{r}
+glimpse(clean_data)
+head(clean_data)
+```
+
+## 4. Decide which variables to summarise
+
+For this article, we will separate variables into two broad groups.
+
+```{r}
+continuous_vars <- c(
+  "age",
+  "bmi",
+  "systolic_bp",
+  "diastolic_bp",
+  "hba1c_mmol_mol",
+  "exercise_minutes_per_week"
+)
+
+categorical_vars <- c(
+  "sex",
+  "smoking_status",
+  "diabetes_status",
+  "recruitment_site",
+  "study_group"
+)
+```
+
+Continuous variables are numeric measurements. Categorical variables are groups or labels.
+
+## 5. Count missing values
+
+Even after cleaning, some missing values may remain. That is normal. The important thing is to know where they are.
+
+```{r}
+missing_summary <- clean_data %>%
+  summarise(across(everything(), ~ sum(is.na(.x)))) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "missing_n"
+  ) %>%
+  arrange(desc(missing_n))
+
+missing_summary
+```
+
+```{r}
+write_csv(missing_summary, "outputs/article_03_missing_summary.csv")
+```
+
+## 6. Summarise continuous variables
+
+For continuous variables, common summaries include:
+
+- number of non-missing observations;
+- mean;
+- standard deviation;
+- median;
+- interquartile range;
+- minimum and maximum.
+
+```{r}
+continuous_summary <- clean_data %>%
+  summarise(
+    across(
+      all_of(continuous_vars),
+      list(
+        n = ~ sum(!is.na(.x)),
+        mean = ~ mean(.x, na.rm = TRUE),
+        sd = ~ sd(.x, na.rm = TRUE),
+        median = ~ median(.x, na.rm = TRUE),
+        q1 = ~ quantile(.x, 0.25, na.rm = TRUE),
+        q3 = ~ quantile(.x, 0.75, na.rm = TRUE),
+        min = ~ min(.x, na.rm = TRUE),
+        max = ~ max(.x, na.rm = TRUE)
+      ),
+      .names = "{.col}_{.fn}"
+    )
+  ) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = c("variable", ".value"),
+    names_pattern = "(.*)_(n|mean|sd|median|q1|q3|min|max)$"
+  ) %>%
+  mutate(
+    across(where(is.numeric), ~ round(.x, 1))
+  )
+
+continuous_summary
+```
+
+```{r}
+write_csv(continuous_summary, "outputs/article_03_continuous_summary.csv")
+```
+
+## 7. Summarise categorical variables
+
+For categorical variables, we usually report counts and percentages.
+
+```{r}
+categorical_summary <- clean_data %>%
+  select(all_of(categorical_vars)) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "category"
+  ) %>%
+  filter(!is.na(category)) %>%
+  count(variable, category, name = "n") %>%
+  group_by(variable) %>%
+  mutate(
+    percent = round(100 * n / sum(n), 1),
+    result = paste0(n, " (", percent, "%)")
+  ) %>%
+  ungroup()
+
+categorical_summary
+```
+
+```{r}
+write_csv(categorical_summary, "outputs/article_03_categorical_summary.csv")
+```
+
+## 8. What is a Table 1?
+
+A **Table 1** is a baseline characteristics table. It is common in clinical papers.
+
+It usually describes the study population using variables such as age, sex, BMI, comorbidities, blood pressure, and laboratory values.
+
+A Table 1 is not mainly about proving a hypothesis. It helps readers understand who is in the study.
+
+## 9. Create a simple overall Table 1
+
+To keep this article beginner-friendly, we will create a simple Table 1 using `dplyr` rather than specialised packages.
+
+First, create a formatted table for continuous variables.
+
+```{r}
+table1_continuous <- continuous_summary %>%
+  transmute(
+    variable,
+    summary = paste0(
+      median,
+      " [",
+      q1,
+      ", ",
+      q3,
+      "]"
+    ),
+    format = "Median [IQR]"
+  )
+
+table1_continuous
+```
+
+Now create a formatted table for categorical variables.
+
+```{r}
+table1_categorical <- categorical_summary %>%
+  transmute(
+    variable = paste0(variable, ": ", category),
+    summary = result,
+    format = "n (%)"
+  )
+
+table1_categorical
+```
+
+Combine both into one table.
+
+```{r}
+table1_overall <- bind_rows(
+  table1_continuous,
+  table1_categorical
+)
+
+table1_overall
+```
+
+```{r}
+write_csv(table1_overall, "outputs/article_03_table1_overall.csv")
+```
+
+## 10. Create Table 1 by diabetes status
+
+Often, we want to describe the dataset by a key grouping variable. Here, we will use `diabetes_status`.
+
+First, summarise continuous variables by diabetes status.
+
+```{r}
+table1_by_diabetes_continuous <- clean_data %>%
+  group_by(diabetes_status) %>%
+  summarise(
+    across(
+      all_of(continuous_vars),
+      list(
+        median = ~ median(.x, na.rm = TRUE),
+        q1 = ~ quantile(.x, 0.25, na.rm = TRUE),
+        q3 = ~ quantile(.x, 0.75, na.rm = TRUE)
+      ),
+      .names = "{.col}_{.fn}"
+    ),
+    .groups = "drop"
+  ) %>%
+  pivot_longer(
+    cols = -diabetes_status,
+    names_to = c("variable", ".value"),
+    names_pattern = "(.*)_(median|q1|q3)$"
+  ) %>%
+  mutate(
+    summary = paste0(
+      round(median, 1),
+      " [",
+      round(q1, 1),
+      ", ",
+      round(q3, 1),
+      "]"
+    )
+  ) %>%
+  select(variable, diabetes_status, summary) %>%
+  pivot_wider(names_from = diabetes_status, values_from = summary)
+
+table1_by_diabetes_continuous
+```
+
+Now summarise categorical variables by diabetes status.
+
+```{r}
+table1_by_diabetes_categorical <- clean_data %>%
+  select(diabetes_status, all_of(categorical_vars)) %>%
+  select(-diabetes_status, everything(), diabetes_status) %>%
+  pivot_longer(
+    cols = all_of(setdiff(categorical_vars, "diabetes_status")),
+    names_to = "variable",
+    values_to = "category"
+  ) %>%
+  filter(!is.na(category), !is.na(diabetes_status)) %>%
+  count(diabetes_status, variable, category, name = "n") %>%
+  group_by(diabetes_status, variable) %>%
+  mutate(
+    percent = round(100 * n / sum(n), 1),
+    summary = paste0(n, " (", percent, "%)")
+  ) %>%
+  ungroup() %>%
+  mutate(variable = paste0(variable, ": ", category)) %>%
+  select(variable, diabetes_status, summary) %>%
+  pivot_wider(names_from = diabetes_status, values_from = summary)
+
+table1_by_diabetes_categorical
+```
+
+Combine them.
+
+```{r}
+table1_by_diabetes <- bind_rows(
+  table1_by_diabetes_continuous,
+  table1_by_diabetes_categorical
+)
+
+table1_by_diabetes
+```
+
+```{r}
+write_csv(table1_by_diabetes, "outputs/article_03_table1_by_diabetes_status.csv")
+```
+
+## 11. Visualise key variables
+
+Descriptive tables are useful, but plots often reveal patterns more quickly.
+
+### BMI distribution
+
+```{r}
+bmi_plot <- ggplot(clean_data, aes(x = bmi)) +
+  geom_histogram(binwidth = 2, colour = "white") +
+  labs(
+    title = "Distribution of BMI",
+    x = "BMI",
+    y = "Number of participants"
+  ) +
+  theme_minimal()
+
+bmi_plot
+```
+
+```{r}
+ggsave("figures/article_03_bmi_distribution.png", bmi_plot, width = 7, height = 5, dpi = 300)
+```
+
+### HbA1c by diabetes status
+
+```{r}
+hba1c_plot <- ggplot(clean_data, aes(x = diabetes_status, y = hba1c_mmol_mol)) +
+  geom_boxplot() +
+  geom_jitter(width = 0.15, alpha = 0.6) +
+  labs(
+    title = "HbA1c by diabetes status",
+    x = "Diabetes status",
+    y = "HbA1c (mmol/mol)"
+  ) +
+  theme_minimal()
+
+hba1c_plot
+```
+
+```{r}
+ggsave("figures/article_03_hba1c_by_diabetes_status.png", hba1c_plot, width = 7, height = 5, dpi = 300)
+```
+
+### BMI and HbA1c
+
+```{r}
+bmi_hba1c_plot <- ggplot(clean_data, aes(x = bmi, y = hba1c_mmol_mol)) +
+  geom_point(alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(
+    title = "Relationship between BMI and HbA1c",
+    x = "BMI",
+    y = "HbA1c (mmol/mol)"
+  ) +
+  theme_minimal()
+
+bmi_hba1c_plot
+```
+
+```{r}
+ggsave("figures/article_03_bmi_hba1c_scatter.png", bmi_hba1c_plot, width = 7, height = 5, dpi = 300)
+```
+
+## 12. First simple group comparisons
+
+Descriptive statistics tell us what the data look like. A statistical test asks whether an observed difference is larger than we might expect by chance, under a particular set of assumptions.
+
+In this beginner article, the goal is not to memorise tests. The goal is to understand the logic.
+
+::: callout-warning
+## Do not rush this step
+
+A statistical test should follow the research question, study design, variable type, and assumptions. Do not choose tests by habit alone.
+:::
+
+## 13. Compare BMI by diabetes status
+
+BMI is numeric. Diabetes status has two groups: `Yes` and `No`.
+
+A simple first comparison is a two-sample t-test.
+
+```{r}
+bmi_t_test <- t.test(bmi ~ diabetes_status, data = clean_data)
+
+bmi_t_test
+```
+
+We can store the key result in a small table.
+
+```{r}
+bmi_t_test_summary <- tibble(
+  comparison = "BMI by diabetes status",
+  test = "Two-sample t-test",
+  p_value = bmi_t_test$p.value
+)
+
+bmi_t_test_summary
+```
+
+```{r}
+write_csv(bmi_t_test_summary, "outputs/article_03_bmi_t_test_summary.csv")
+```
+
+## 14. Compare sex distribution by diabetes status
+
+Sex and diabetes status are both categorical variables. A simple first comparison is a chi-square test.
+
+```{r}
+sex_diabetes_table <- table(clean_data$sex, clean_data$diabetes_status)
+
+sex_diabetes_table
+```
+
+```{r}
+sex_diabetes_chisq <- chisq.test(sex_diabetes_table)
+
+sex_diabetes_chisq
+```
+
+Save the result.
+
+```{r}
+sex_diabetes_chisq_summary <- tibble(
+  comparison = "Sex by diabetes status",
+  test = "Chi-square test",
+  p_value = sex_diabetes_chisq$p.value
+)
+
+sex_diabetes_chisq_summary
+```
+
+```{r}
+write_csv(sex_diabetes_chisq_summary, "outputs/article_03_sex_diabetes_chisq_summary.csv")
+```
+
+::: callout-note
+## A note about p-values
+
+A p-value does not tell us whether a result is clinically important. It only helps assess how compatible the observed data are with a null hypothesis under the assumptions of the test.
+
+Clinical judgement, study design, sample size, effect size, confidence intervals, and prior evidence all matter.
+:::
+
+## 15. Add confidence intervals for a mean
+
+Confidence intervals are often more informative than p-values alone. Here is a simple example using mean BMI.
+
+```{r}
+bmi_mean_ci <- clean_data %>%
+  summarise(
+    n = sum(!is.na(bmi)),
+    mean_bmi = mean(bmi, na.rm = TRUE),
+    sd_bmi = sd(bmi, na.rm = TRUE),
+    standard_error = sd_bmi / sqrt(n),
+    lower_95_ci = mean_bmi - 1.96 * standard_error,
+    upper_95_ci = mean_bmi + 1.96 * standard_error
+  ) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 2)))
+
+bmi_mean_ci
+```
+
+```{r}
+write_csv(bmi_mean_ci, "outputs/article_03_bmi_mean_confidence_interval.csv")
+```
+
+## 16. Export a simple analysis summary
+
+It is useful to save important outputs rather than relying only on what appears in the console.
+
+```{r}
+analysis_summary <- bind_rows(
+  bmi_t_test_summary,
+  sex_diabetes_chisq_summary
+)
+
+analysis_summary
+```
+
+```{r}
+write_csv(analysis_summary, "outputs/article_03_simple_analysis_summary.csv")
+```
+
+## 17. Mini activity
+
+Using the cleaned dataset, try to answer these questions.
+
+1.  What is the median age of the sample?
+2.  What percentage of participants have diabetes?
+3.  What is the median HbA1c by diabetes status?
+4.  Make a boxplot of systolic blood pressure by diabetes status.
+5.  Create a simple Table 1 by study group.
+6.  Decide whether each variable is continuous, categorical, binary, or ordinal.
+7.  Write one sentence describing the study population.
+
+## 18. Common beginner mistakes
+
+| Mistake | Why it matters |
+|----|----|
+| Running tests before looking at the data | You may miss obvious errors or strange distributions |
+| Reporting only p-values | P-values do not show size or clinical importance |
+| Ignoring missing values | Different variables may have different sample sizes |
+| Using the wrong denominator for percentages | Percentages can become misleading |
+| Treating Table 1 as an afterthought | Table 1 is often the first thing readers use to understand your study |
+
+## 19. What comes next?
+
+You now have a clean beginner workflow:
+
+1.  Article 1: learn R basics and inspect a clean dataset.
+2.  Article 2: clean a messy clinical dataset reproducibly.
+3.  Article 3: summarise the cleaned dataset and create first tables, plots, and comparisons.
+
+A natural next article would focus on choosing statistical tests more carefully, including:
+
+- continuous vs categorical outcomes;
+- paired vs unpaired data;
+- parametric vs non-parametric tests;
+- confidence intervals;
+- simple linear and logistic regression.

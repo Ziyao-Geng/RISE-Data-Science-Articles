@@ -1,9 +1,0 @@
-participant_id,variable,value,issue
-P036,age,-4,Age is below 0 years
-P018,age,250,Age is above 120 years
-P021,bmi,5,BMI is below 10 kg/m^2
-P039,bmi,91,BMI is above 80 kg/m^2
-P024,systolic_bp,310,Systolic BP is above 250 mmHg
-P027,diastolic_bp,22,Diastolic BP is below 40 mmHg
-P046,diastolic_bp,180,Diastolic BP is above 150 mmHg
-P033,exercise_minutes_per_week,-30,Exercise minutes are below 0

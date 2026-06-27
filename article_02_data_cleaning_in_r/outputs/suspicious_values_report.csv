@@ -1,0 +1,8 @@
+participant_id,variable,value,reason
+RISE004,age,250,Age outside 0-120
+RISE010,bmi,5,BMI outside 10-80
+RISE016,systolic_bp,310,Systolic BP outside 70-250
+RISE022,diastolic_bp,20,Diastolic BP outside 40-150
+RISE028,hba1c_mmol_mol,220,HbA1c outside 15-160
+RISE034,exercise_minutes_per_week,-30,Exercise minutes outside 0-2000
+RISE042,exercise_minutes_per_week,5000,Exercise minutes outside 0-2000

@@ -1,0 +1,13 @@
+variable,category,n,percent,result
+diabetes_status,No,55,70.5,55 (70.5%)
+diabetes_status,Yes,23,29.5,23 (29.5%)
+recruitment_site,Metro Hospital,30,37.5,30 (37.5%)
+recruitment_site,Regional Clinic,21,26.2,21 (26.2%)
+recruitment_site,University Clinic,29,36.2,29 (36.2%)
+sex,Female,45,57.7,45 (57.7%)
+sex,Male,33,42.3,33 (42.3%)
+smoking_status,Current,10,12.7,10 (12.7%)
+smoking_status,Former,17,21.5,17 (21.5%)
+smoking_status,Never,52,65.8,52 (65.8%)
+study_group,Control,39,48.8,39 (48.8%)
+study_group,Intervention,41,51.2,41 (51.2%)

@@ -1,0 +1,19 @@
+variable,summary,format
+age,"44 [30, 57]",Median [IQR]
+bmi,"27.4 [23.1, 30.9]",Median [IQR]
+systolic_bp,"127 [118, 136]",Median [IQR]
+diastolic_bp,"74 [68.5, 79.5]",Median [IQR]
+hba1c_mmol_mol,"37.5 [32.5, 47.3]",Median [IQR]
+exercise_minutes_per_week,"151.5 [78.8, 222.5]",Median [IQR]
+diabetes_status: No,55 (70.5%),n (%)
+diabetes_status: Yes,23 (29.5%),n (%)
+recruitment_site: Metro Hospital,30 (37.5%),n (%)
+recruitment_site: Regional Clinic,21 (26.2%),n (%)
+recruitment_site: University Clinic,29 (36.2%),n (%)
+sex: Female,45 (57.7%),n (%)
+sex: Male,33 (42.3%),n (%)
+smoking_status: Current,10 (12.7%),n (%)
+smoking_status: Former,17 (21.5%),n (%)
+smoking_status: Never,52 (65.8%),n (%)
+study_group: Control,39 (48.8%),n (%)
+study_group: Intervention,41 (51.2%),n (%)

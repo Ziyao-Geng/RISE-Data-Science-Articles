@@ -1,0 +1,5 @@
+cleaning_step,n_rows
+Raw dataset,85
+Before removing duplicate participant IDs,85
+After removing duplicate participant IDs,80
+Final cleaned dataset,80

@@ -1,0 +1,13 @@
+variable,description,type,cleaning_note
+participant_id,Unique fictional participant identifier,Identifier,Cleaned to uppercase and stripped of extra spaces
+age,Age in years,Continuous numeric,Values outside 0-120 replaced with missing
+sex,Sex recorded in the dataset,Categorical,Standardised to Male/Female; unclear values set to missing
+bmi,Body mass index in kg/m^2,Continuous numeric,Values outside 10-80 replaced with missing
+systolic_bp,Systolic blood pressure in mmHg,Continuous numeric,Values outside 70-250 replaced with missing
+diastolic_bp,Diastolic blood pressure in mmHg,Continuous numeric,Values outside 40-150 replaced with missing
+hba1c_mmol_mol,HbA1c in mmol/mol,Continuous numeric,Values outside 15-160 replaced with missing
+smoking_status,Smoking history,Categorical,Standardised to Never/Former/Current
+diabetes_status,Diabetes status,Binary categorical,Standardised to Yes/No
+recruitment_site,Fictional recruitment location,Categorical,Converted to title case
+study_group,Fictional study group,Categorical,Converted to title case
+exercise_minutes_per_week,Self-reported exercise minutes per week,Continuous numeric,Values outside 0-2000 replaced with missing

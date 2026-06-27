@@ -1,0 +1,86 @@
+Participant ID,Age,Sex,BMI,Systolic BP,Diastolic BP,HbA1c (mmol/mol),Smoking Status,Diabetes Status,Recruitment Site,Study Group,Exercise Minutes Per Week
+RISE001,56, woman ,20.0,129,73,35.0,never,No diabetes,Metro Hospital,Control,292.0
+RISE002,69,female,19.5,132,89,57.9,Never smoker,Yes,Metro Hospital,Control,54.0
+RISE003,72,Male,27.3,152,69,66.3,former,T2DM,Regional Clinic,Control,22.0
+RISE004,250,female,27.7,117,67 mmHg,39.4,ex-smoker,No diabetes,Metro Hospital,Control,240.0
+RISE005,29, man ,25.3,114 mmHg,67 mmHg,34.1,ex-smoker,,University Clinic,Control,259.0
+RISE006,19,Female,26.7,122,80,32.1,N,No,Metro Hospital,Control,
+RISE007,67,Male,27.4,148 mmHg,82,43.6,never, type 2 diabetes ,University Clinic,Control,171.0
+RISE008,21, woman ,29.3,108,60,29.8,Smoker,N,Regional Clinic,Control,129.0
+RISE009,23,Female,19.5,120,70,31.8,never, no ,University Clinic,Intervention,202.0
+RISE010,37, woman ,5,129,73,32.5,N,No,Regional Clinic,Intervention,198.0
+RISE011,34,female,30.9,133,69,31.9 mmol/mol,C,No diabetes,Regional Clinic,Intervention,101.0
+RISE012,30,Male,27.5,125,70,40.6,Past smoker,N,Metro Hospital,Control,33.0
+RISE013,26,M,22.4,97,53,32.3,Never,No,University Clinic,Control,182.0
+RISE014,20,M,21.1,121,64,42.2,N,No diabetes,Regional Clinic,Control,100.0
+  rise015  ,54,Female,31.2,132,76,65.8,N, type 2 diabetes ,Metro Hospital,Intervention,134.0
+  rise016  ,67,female,24.9,310,81,62.6,ex-smoker,Y,Metro Hospital,Intervention,106.0
+RISE017,30,F,,128 mmHg,62,37.5,Never smoker,No,Metro Hospital,Intervention,245.0
+RISE018,40,Male,27.3,129,77,27.0,Current,No,Metro Hospital,Intervention,172.0
+RISE019,60,female,26.7,118,83,39.0,Never smoker, no ,Regional Clinic,Control,222.0
+RISE020,29,Not recorded,33.5 kg/m2,131 mmHg,82,28.6,Never,N,Metro Hospital,Intervention,307.0
+  rise021  ,30,male,29.1,107,69,,Smoker,N,University Clinic,Control,
+RISE022,60,M,19.5,120,20,34.8 mmol/mol,Never,No diabetes,University Clinic,Control,265.0
+RISE023,54, man ,36.2,150,82,38.6 mmol/mol,Current,No,Regional Clinic,Control,7.0
+RISE024,39,male,30.5,147,77,51.6,Past smoker,Yes,University Clinic,Control,60.0
+RISE025,43,F,28.4,117,80,27.4,never,No,University Clinic,Control,130.0
+RISE026,46, man ,40.8,144,74,32.0,Unknown,N,Metro Hospital,Intervention,190.0
+  rise027  ,46,female,30.8,119,86,65.1 mmol/mol,ex-smoker,T2DM,Regional Clinic,Control,224.0
+  rise028  ,25,F,,132,64,220 mmol/mol,current, no ,Regional Clinic,Intervention,166.0
+RISE029,N/A,Female,19.3,116,75,85.2,C,T2DM,Metro Hospital,Intervention,166.0
+RISE030,20,M,23.5 kg/m2,104,72,46.9,N,No diabetes,Metro Hospital,Control,228.0
+RISE031,69,Female,28.7,120,91,58.3,Never smoker,T2DM,Metro Hospital,Control,56.0
+RISE032,56,Female,29.1,131,74,38.7,Never,N,University Clinic,Intervention,253.0
+RISE033,55,M,,136,77,36.6,never, no ,Regional Clinic,Intervention,138.0
+RISE034,31, woman ,27.3 kg/m2,133,65,32.7,Never,No,Regional Clinic,Intervention,-30
+RISE035,73,F,27.3,146 mmHg,81,35.2,Never,No,Metro Hospital,Intervention,117.0
+RISE036,48,Male,20.5,127,82,35.9,Past smoker,No,University Clinic,Intervention,13.0
+RISE037,40,Female,34.7,119,76,63.3,C,Y,University Clinic,Control,24.0
+RISE038,61,F,30.2,136 mmHg,73,43.0,Never smoker, no ,Regional Clinic,Control,58.0
+RISE039,64,male,27.2,133,69,43.3,never,N,University Clinic,Intervention,25.0
+RISE040,56,Male,36.3,132,80,66.6 mmol/mol,never,Y,Metro Hospital,Control,112.0
+RISE041,48,Male,27.0,137 mmHg,84,28.6 mmol/mol,never,No diabetes,University Clinic,Intervention,132.0
+RISE042,51,M,33.3,112,97,64.0,never, type 2 diabetes ,Metro Hospital,Intervention,5000
+RISE043,65,female,31.3,140,85,66.0,Current,Yes,University Clinic,Intervention,252.0
+  rise044  ,21, man ,23.8,117,72 mmHg,35.4 mmol/mol,Never, no ,University Clinic,Control,40.0
+RISE045,52,Female,25.1,109,78,32.2,ex-smoker,No diabetes,Metro Hospital,Control,124.0
+RISE046,62,male,27.7 kg/m2,124,83,43.0,never, no ,Regional Clinic,Intervention,137.0
+RISE047,41, man ,21.0,126,61,35.4,current,No diabetes,University Clinic,Intervention,169.0
+RISE048,36,F,25.9,143,67,36.4,Never,No diabetes,Regional Clinic,Control,110.0
+RISE049,58,Male,33.7,113,79 mmHg,55.9,Past smoker,Yes,Metro Hospital,Control,218.0
+  rise050  ,47, woman ,33.3,136,74,56.2,never,Y,Metro Hospital,Control,211.0
+RISE051,25,male,29.7,114,79,40.1,N,No,Metro Hospital,Control,192.0
+RISE052,37, woman ,24.9,130,74,31.7,Never smoker,No diabetes,Regional Clinic,Intervention,134.0
+RISE053,25,Female,,114 mmHg,65 mmHg,28.0,never,No,University Clinic,Control,66.0
+RISE054,38,F,28.7,120,68,32.4,Never,N,Metro Hospital,Intervention,214.0
+RISE055,35, woman ,31.0,143,78,34.9,never,No,University Clinic,Intervention,202.0
+RISE056,55, man ,22.4,122,64,55.3 mmol/mol,N,T2DM,Regional Clinic,Intervention,95.0
+RISE057,19,F,32.2,124,71,,ex-smoker,T2DM,University Clinic,Intervention,317.0
+RISE058,52,M,19.8,118 mmHg,68,49.3,N,Yes,University Clinic,Intervention,98.0
+RISE059,38,female,22.6,120,65,39.9,N,N,University Clinic,Intervention,227.0
+RISE060,44,Unknown,30.4,137,69,49.7,Never smoker,T2DM,Metro Hospital,Control,42.0
+RISE061,44,Male,27.7,121,67,27.0,Never smoker, no ,University Clinic,Intervention,211.0
+RISE062,37,M,30.4,136,66,32.6,Never, no ,University Clinic,Intervention,72.0
+RISE063,74,F,23.0,143,80,55.1,Never smoker,T2DM,University Clinic,Intervention,225.0
+RISE064,38,F,30.2,140,71,45.5,Never,Yes,University Clinic,Intervention,282.0
+RISE065,40,female,22.2,119,73 mmHg,45.5,Past smoker,No,Metro Hospital,Control,5.0
+  rise066  ,30,male,22.0,115 mmHg,65,32.8,Past smoker,No diabetes,University Clinic,Control,284.0
+RISE067,27,F,31.9,120,83,33.9,Never smoker, no ,Metro Hospital,Control,292.0
+RISE068,20,F,25.1,112,74,39.4 mmol/mol,ex-smoker,No,Metro Hospital,Intervention,214.0
+RISE069,57,F,21.8,139,74,30.4,N,No diabetes,University Clinic,Control,239.0
+RISE070,68,F,28.1 kg/m2,153,76 mmHg,34.8,Never,No,University Clinic,Intervention,283.0
+RISE071,23,M,18.2,114,73,40.8,N,N,University Clinic,Intervention,0.0
+RISE072,64,Female,25.8,147 mmHg,71,32.5,Never,Unknown,Metro Hospital,Control,20.0
+RISE073,56,F,23.2,129,74,32.6 mmol/mol,never,N,Regional Clinic,Control,81.0
+RISE074,, man ,31.2,125,80,29.1,Former, no ,Regional Clinic,Intervention,159.0
+RISE075,19,Male,35.8,130,65,36.0,Former,N,Regional Clinic,Intervention,23.0
+RISE076,33,Male,18.2,116,70 mmHg,41.5,Never smoker,N,Regional Clinic,Intervention,151.0
+RISE077,65,F,19.4,116,67,36.3,Former,No diabetes,Metro Hospital,Intervention,224.0
+RISE078,65, woman ,32.7,129,70,47.3,Never smoker,T2DM,Metro Hospital,Control,152.0
+RISE079,67,Female,32.1,148,76,67.5,N,T2DM,Regional Clinic,Control,67.0
+RISE080,55, woman ,35.7,135,76,31.5,N, no ,Metro Hospital,Intervention,117.0
+RISE005,29, man ,31.2 kg/m2,114 mmHg,67 mmHg,34.1,ex-smoker,,University Clinic,Control,259.0
+RISE011,34,M,30.9,133,69,31.9 mmol/mol,C,No diabetes,Regional Clinic,Intervention,101.0
+  rise021  ,30,male,29.1,148 mmHg,69,,Smoker,N,University Clinic,Control,
+RISE036,48,Male,20.5,127,82,35.9,Past smoker,Y,University Clinic,Intervention,13.0
+RISE051,25,male,29.7,114,79,40.1,ex-smoker,No,Metro Hospital,Control,192.0
