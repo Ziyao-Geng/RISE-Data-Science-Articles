@@ -70,7 +70,7 @@ In this article, we will use a fictional teaching dataset called `rise_sample_he
 Some of the key variables are shown below.
 
 | Variable | What it represents | Example problem |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | `Participant ID` | Participant identifier | Extra spaces and duplicate IDs |
 | `Age` | Age in years | Missing values and impossible values |
 | `Sex` | Sex recorded in the dataset | `Male`, `male`, `M`, `F`, unclear values |
@@ -761,7 +761,7 @@ Using the messy dataset, try to reproduce the cleaning workflow yourself.
 ## 22. Common beginner mistakes
 
 | Mistake | Why it matters |
-|------------------------------------|------------------------------------|
+|----|----|
 | Overwriting the raw dataset | You lose the original record |
 | Deleting all missing values too early | You may remove too much data without thinking |
 | Assuming duplicate IDs are always errors | They may represent repeated visits or follow-up |

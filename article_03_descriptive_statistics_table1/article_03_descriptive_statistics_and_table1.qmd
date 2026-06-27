@@ -1,7 +1,7 @@
 ---
 title: "Descriptive Statistics and Table 1 in R"
 subtitle: "How to summarise cleaned clinical research data before formal analysis"
-author: "RISE Education Team"
+author: "Ziyao Geng, RISE Education Team"
 format:
   html:
     toc: true
@@ -41,7 +41,6 @@ Descriptive statistics help us answer basic questions:
 - Are the groups roughly similar or clearly different?
 - Do the distributions look sensible?
 
-This is not just a box-ticking exercise. Descriptive statistics are how we notice problems before they become embarrassing. Better to find a strange value now than after making a poster.
 
 ## 2. Load packages
 
@@ -325,8 +324,6 @@ A **Table 1** is a baseline characteristics table. It is common in clinical pape
 
 It usually describes the study population using variables such as age, sex, BMI, comorbidities, blood pressure, and laboratory values.
 
-A Table 1 is not mainly about proving a hypothesis. It helps readers understand who is in the study.
-
 For example, a Table 1 might show:
 
 - median age and interquartile range;
@@ -372,8 +369,6 @@ What each argument means:
 - `digits` controls how many decimal places are shown for numeric columns;
 - `align = "l"` left-aligns table columns;
 - `table.attr` adds Bootstrap table styling in the rendered HTML file.
-
-The key idea is simple: **create the data frame first, then use `kable()` only for displaying it nicely**. Do not use `kable()` as your main data object because it is designed for presentation, not analysis.
 
 ## 10. Create a simple overall Table 1
 
@@ -706,12 +701,10 @@ ggsave(
 
 Descriptive statistics tell us what the data look like. A statistical test asks whether an observed difference is larger than we might expect by chance, under a particular set of assumptions.
 
-In this beginner article, the goal is not to memorise tests. The goal is to understand the logic.
-
 ::: callout-warning
-## Do not rush this step
+## Chosing the appropriate statistical test
 
-A statistical test should follow the research question, study design, variable type, and assumptions. Do not choose tests by habit alone.
+A statistical test should follow the research question, study design, variable type, and assumptions. Always take all the above into consideration before choosing a most appropriate test for the question.
 :::
 
 ## 14. Compare BMI by diabetes status
@@ -918,21 +911,9 @@ Using the cleaned dataset, try to answer these questions.
 3.  What is the median HbA1c by diabetes status?
 4.  Make a boxplot of systolic blood pressure by diabetes status.
 5.  Create a simple Table 1 by study group.
-6.  Decide whether each variable is continuous, categorical, binary, or ordinal.
-7.  Write one sentence describing the study population.
 
-## 19. Common beginner mistakes
 
-| Mistake | Why it matters |
-|------------------------------------|------------------------------------|
-| Running tests before looking at the data | You may miss obvious errors or strange distributions |
-| Reporting only p-values | P-values do not show size or clinical importance |
-| Ignoring missing values | Different variables may have different sample sizes |
-| Using the wrong denominator for percentages | Percentages can become misleading |
-| Treating Table 1 as an afterthought | Table 1 is often the first thing readers use to understand your study |
-| Using `kable()` as the data object | `kable()` is for presentation; keep the original data frame for analysis and saving |
-
-## 20. What comes next?
+## 19. What comes next?
 
 You now have a clean beginner workflow:
 
@@ -940,15 +921,11 @@ You now have a clean beginner workflow:
 2.  Article 2: clean a messy clinical dataset reproducibly.
 3.  Article 3: summarise the cleaned dataset and create first tables, plots, and comparisons.
 
-A natural next article would focus on choosing statistical tests more carefully, including:
+Next, we will focus on how to choose statistical tests more carefully, including:
 
-- continuous vs categorical outcomes;
 - paired vs unpaired data;
 - parametric vs non-parametric tests;
-- confidence intervals;
 - simple linear and logistic regression.
-
-
 
 ## Appendix
 
