@@ -1,0 +1,13 @@
+variable,missing_n
+bmi,4
+hba1c_mmol_mol,3
+diabetes_status,3
+exercise_minutes_per_week,3
+age,2
+sex,2
+smoking_status,1
+participant_id,0
+systolic_bp,0
+diastolic_bp,0
+recruitment_site,0
+study_group,0

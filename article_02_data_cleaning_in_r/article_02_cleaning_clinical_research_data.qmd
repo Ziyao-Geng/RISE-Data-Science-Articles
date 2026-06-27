@@ -1,7 +1,7 @@
 ---
 title: "Cleaning Clinical Research Data in R"
 subtitle: "How to turn a messy spreadsheet into an analysis-ready dataset"
-author: "RISE Education Team"
+author: "Ziyao Geng, RISE Education Team"
 format:
   html:
     toc: true
@@ -44,7 +44,7 @@ Common problems include:
 - numbers accidentally stored as text;
 - unclear variable coding.
 
-Before asking "Which statistical test should I run?", we first need to ask: **Can I trust this dataset?**
+The purpose of data cleaning is not to make the dataset look perfect. The purpose is to make the dataset accurate, consistent, documented, and ready for analysis.
 
 ## 2. The core rule: never overwrite the raw dataset
 
@@ -65,9 +65,9 @@ The raw dataset should stay unchanged. Clean the data using code and save a new 
 
 ## 3. The messy sample dataset
 
-In this article, we will use a fictional teaching dataset called `rise_sample_health_data_messy.csv`.
+In this article, we will use a fictional teaching dataset called `rise_sample_health_data_messy.csv`. It is based on the clean dataset from Article 1, but we have deliberately added missing values, inconsistent labels, duplicate participant IDs, and biologically implausible values.
 
-It is a messy version of the clean dataset from Article 1. The problems are deliberate, because this is how we learn.
+Some of the key variables are shown below.
 
 | Variable | What it represents | Example problem |
 |------------------------|------------------------|------------------------|
@@ -76,9 +76,13 @@ It is a messy version of the clean dataset from Article 1. The problems are deli
 | `Sex` | Sex recorded in the dataset | `Male`, `male`, `M`, `F`, unclear values |
 | `BMI` | Body mass index | Missing values and impossible values |
 | `Systolic BP` | Systolic blood pressure | Values such as `142 mmHg` |
+| `Diastolic BP` | Diastolic blood pressure | Values such as `82 mmHg` |
 | `HbA1c (mmol/mol)` | HbA1c | Values such as `48 mmol/mol` |
 | `Smoking Status` | Smoking history | `Never`, `N`, `ex-smoker`, inconsistent labels |
 | `Diabetes Status` | Diabetes status | `Yes`, `Y`, `T2DM`, `No`, inconsistent labels |
+| `Recruitment Site` | Fictional recruitment location | Inconsistent capitalisation |
+| `Study Group` | Fictional study group | Inconsistent capitalisation |
+| `Exercise Minutes Per Week` | Self-reported exercise time | Missing values and impossible values |
 
 The aim is to turn this messy raw dataset into an analysis-ready dataset.
 
@@ -98,7 +102,8 @@ article_02_data_cleaning_in_r/
 └── outputs/
     ├── data_cleaning_summary.csv
     ├── duplicate_participant_report.csv
-    ├── missing_value_summary.csv
+    ├── missing_values_before_cleaning.csv
+    ├── missing_values_after_cleaning.csv
     ├── suspicious_values_report.csv
     └── variable_dictionary.csv
 ```
@@ -109,6 +114,8 @@ The key idea is simple:
 - `data_cleaned/` contains the cleaned dataset;
 - `scripts/` contains reusable R code;
 - `outputs/` contains reports generated during cleaning.
+
+For the file paths in this article to work, the Quarto file should be saved inside the main article folder shown above.
 
 ## 5. Load packages and create folders
 
@@ -129,7 +136,8 @@ install.packages("janitor")
 library(tidyverse)
 library(janitor)
 
-# Create output folders if they do not already exist.
+# Create project folders if they do not already exist.
+dir.create("data_raw", showWarnings = FALSE)
 dir.create("data_cleaned", showWarnings = FALSE)
 dir.create("outputs", showWarnings = FALSE)
 ```
@@ -138,16 +146,25 @@ dir.create("outputs", showWarnings = FALSE)
 
 In a messy dataset, it is often useful to import everything as text first. This prevents R from guessing variable types too early.
 
+For example, a value like `142 mmHg` is not a pure number. If we import the dataset too aggressively, R may make choices that are difficult to diagnose later. A safer beginner-friendly approach is to import first, inspect, clean, and then convert variable types.
+
 ```{r}
+# Store the file path of the raw messy dataset.
 raw_data_path <- "data_raw/rise_sample_health_data_messy.csv"
 
+# Check whether the raw dataset exists.
 if (!file.exists(raw_data_path)) {
   stop("Cannot find the raw dataset. Check that it is inside the data_raw/ folder.")
 }
 
+# Read the raw CSV file into R.
 raw_data <- read_csv(
   file = raw_data_path,
+
+  # Read all columns as text first.
   col_types = cols(.default = col_character()),
+
+  # Treat these entries as missing values.
   na = c("", "NA", "N/A", "Unknown", "Not recorded", "not available")
 )
 ```
@@ -156,52 +173,39 @@ At this stage, `raw_data` should be treated as the untouched raw dataset.
 
 ## 7. Inspect the raw dataset
 
-Article 1 introduced basic inspection commands. Here, we use them with a different purpose: to find cleaning problems.
+Before we start cleaning, we should inspect the dataset. This helps us identify obvious problems before making changes.
 
 ```{r}
+# Show the first few rows.
 head(raw_data)
 ```
 
 ```{r}
+# Show variable names, types, and example values.
 glimpse(raw_data)
 ```
 
 ```{r}
+# Check the number of rows and columns.
 dim(raw_data)
+
+# Check the original column names.
 names(raw_data)
 ```
 
-Do not clean anything yet. First, look carefully.
-
-## 8. Count missing values before cleaning
-
-It is useful to count missing values before making changes. This gives us a baseline record.
-
-```{r}
-missing_before_cleaning <- raw_data %>%
-  summarise(across(everything(), ~ sum(is.na(.x)))) %>%
-  pivot_longer(
-    cols = everything(),
-    names_to = "variable",
-    values_to = "missing_n"
-  ) %>%
-  arrange(desc(missing_n))
-
-missing_before_cleaning
-```
-
-This code creates a table showing how many missing values are present in each variable.
-
-## 9. Clean column names
+## 8. Clean column names
 
 Raw clinical spreadsheets often have column names with spaces, capital letters, brackets, or symbols.
 
 R can work with those names, but they are awkward to type. We can use `clean_names()` from the `janitor` package to make them easier to use.
 
 ```{r}
+# Create a working copy of the raw dataset.
+# The raw dataset itself remains unchanged.
 clean_data <- raw_data %>%
   clean_names()
 
+# Check the cleaned column names.
 names(clean_data)
 ```
 
@@ -216,23 +220,106 @@ HbA1c (mmol/mol)      -> hb_a1c_mmol_mol
 For consistency in this teaching series, we will rename `hb_a1c_mmol_mol` to `hba1c_mmol_mol`.
 
 ```{r}
+# Rename one column to make the naming style simpler.
 clean_data <- clean_data %>%
-  rename_with(
-    .fn = ~ str_replace(.x, "^hb_a1c_mmol_mol$", "hba1c_mmol_mol")
-  )
+  rename(hba1c_mmol_mol = hb_a1c_mmol_mol)
 
+# Check that the renaming worked.
 names(clean_data)
+```
+
+In `rename()`, the new name goes on the left and the old name goes on the right.
+
+## 9. Count missing values before cleaning
+
+Before we clean the dataset, it is useful to count how many missing values are present in each variable. This gives us a baseline record before we make further changes.
+
+In R, missing values are usually shown as `NA`, which stands for “not available”. Missing values are common in clinical and research datasets. For example, a participant may not have answered a question, a blood test may not have been performed, or a value may have been entered incorrectly and later removed.
+
+To count missing values, we can use `is.na()`. This function checks whether each value is missing. It returns `TRUE` for missing values and `FALSE` for non-missing values.
+
+For example:
+
+```{r}
+# Check whether each age value is missing.
+is.na(clean_data$age)
+```
+
+However, we usually do not want to check only one variable at a time. Instead, we want to count missing values across all variables in the dataset.
+
+```{r}
+# Count missing values in every variable.
+missing_before_cleaning <- clean_data %>%
+  summarise(across(everything(), ~ sum(is.na(.x)))) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "missing_n"
+  ) %>%
+  arrange(desc(missing_n))
+
+missing_before_cleaning
+```
+
+Let’s break this down.
+
+``` r
+summarise(across(everything(), ~ sum(is.na(.x))))
+```
+
+This part goes through every variable in the dataset and counts how many missing values each variable contains.
+
+The result at this stage is a wide table. This means each variable is shown as a separate column.
+
+However, this format is not very convenient for reading or sorting. Therefore, we use `pivot_longer()`.
+
+``` r
+pivot_longer(
+  cols = everything(),
+  names_to = "variable",
+  values_to = "missing_n"
+)
+```
+
+`pivot_longer()` reshapes the table from wide format into long format.
+
+Instead of having one column for each variable, we create two columns:
+
+- `variable`: the name of the variable;
+- `missing_n`: the number of missing values in that variable.
+
+This makes the result much easier to read, sort, filter, and later report.
+
+Finally:
+
+``` r
+arrange(desc(missing_n))
+```
+
+This sorts the table so that variables with the most missing values appear at the top.
+
+The final table gives us a clear overview of missing data before cleaning. This is useful because it helps us decide which variables need closer inspection and allows us to compare the dataset before and after cleaning.
+
+```{r}
+# Save the before-cleaning missing value report.
+write_csv(missing_before_cleaning, "outputs/missing_values_before_cleaning.csv")
 ```
 
 ## 10. Clean participant IDs and extra spaces
 
-Extra spaces can create hidden problems. For example, `RISE001` and `RISE001` may look similar to a human, but R treats them as different values.
+Extra spaces can create hidden problems. For example, `RISE001` and `Rise001` may look similar to a human, but R treats them as different values.
 
 ```{r}
+# Clean text values in the dataset.
 clean_data <- clean_data %>%
   mutate(
+    # Remove extra spaces from participant IDs.
     participant_id = str_squish(participant_id),
+
+    # Convert participant IDs to uppercase.
     participant_id = str_to_upper(participant_id),
+
+    # Remove extra spaces from all text columns.
     across(where(is.character), str_squish)
   )
 ```
@@ -245,31 +332,43 @@ This step:
 
 ## 11. Check duplicate participants
 
-A duplicate participant ID means the same participant appears more than once.
+A duplicate participant ID means the same participant appears more than once in the dataset.
+
+This may happen because of accidental repeated data entry, but it may also happen for valid reasons, such as repeated clinic visits or follow-up measurements. Therefore, we should always check duplicates before removing anything.
 
 ```{r}
+# Count how many rows each participant ID has.
 duplicate_participants <- clean_data %>%
   count(participant_id, name = "n_rows") %>%
+
+  # Keep only IDs that appear more than once.
   filter(n_rows > 1)
 
+# Print the duplicate participant report.
 duplicate_participants
 ```
 
-Save this report before removing duplicates.
+Save this report before removing duplicates. This gives us a record of what was identified, which is useful for transparency and reproducibility.
 
 ```{r}
+# Save the duplicate participant report.
 write_csv(duplicate_participants, "outputs/duplicate_participant_report.csv")
 ```
 
-For this teaching dataset, we will keep the first row for each participant.
+For this teaching dataset, we will keep the first row for each participant. This is a simple approach for demonstration, but in real research you should inspect duplicates carefully before deciding what to remove.
 
 ```{r}
+# Count rows before removing duplicate participants.
 n_before_duplicates <- nrow(clean_data)
 
+# Remove duplicate participant IDs.
 clean_data <- clean_data %>%
   distinct(participant_id, .keep_all = TRUE)
 
+# Count rows after removing duplicate participants.
 n_after_duplicates <- nrow(clean_data)
+
+n_after_duplicates
 ```
 
 ::: callout-warning
@@ -285,18 +384,36 @@ Some values look numeric but are actually stored as text. For example, `142 mmHg
 The function `parse_number()` extracts the numeric part from a text value.
 
 ```{r}
+# Convert selected variables from text into numbers.
 clean_data <- clean_data %>%
   mutate(
+    # Extract the numeric part of age.
     age = parse_number(age),
+
+    # Extract the numeric part of BMI.
     bmi = parse_number(bmi),
+
+    # Extract the numeric part of systolic BP.
     systolic_bp = parse_number(systolic_bp),
+
+    # Extract the numeric part of diastolic BP.
     diastolic_bp = parse_number(diastolic_bp),
+
+    # Extract the numeric part of HbA1c.
     hba1c_mmol_mol = parse_number(hba1c_mmol_mol),
+
+    # Extract the numeric part of exercise minutes.
     exercise_minutes_per_week = parse_number(exercise_minutes_per_week)
   )
 ```
 
 Numeric variables are needed for means, medians, plots, and statistical tests.
+
+::: callout-note
+## Why not convert everything automatically?
+
+In beginner projects, it is safer to convert variables deliberately. This makes it clearer which variables should be numeric and prevents accidental conversion of identifiers or category labels.
+:::
 
 ## 13. Standardise categorical variables
 
@@ -304,31 +421,52 @@ Categorical variables often contain inconsistent labels.
 
 For example, the same idea may be recorded as `Male`, `male`, `M`, or `man`.
 
-We can standardise these using `str_to_lower()` and `case_when()`.
+This is a problem because R treats these as different categories. Before analysis, we should standardise them into a smaller set of consistent labels.
+
+We can do this using:
+
+- `str_to_lower()` to make text lowercase before matching;
+- `case_when()` to convert different versions of the same answer into one standard label.
 
 ```{r}
+# Standardise categorical variables.
 clean_data <- clean_data %>%
   mutate(
+    # Convert sex values to lowercase first.
     sex = str_to_lower(sex),
+
+    # Recode sex into standard labels.
     sex = case_when(
       sex %in% c("male", "m", "man") ~ "Male",
       sex %in% c("female", "f", "woman") ~ "Female",
       TRUE ~ NA_character_
     ),
+
+    # Convert diabetes status values to lowercase first.
     diabetes_status = str_to_lower(diabetes_status),
+
+    # Recode diabetes status into standard labels.
     diabetes_status = case_when(
       diabetes_status %in% c("yes", "y", "t2dm", "type 2 diabetes", "diabetes") ~ "Yes",
       diabetes_status %in% c("no", "n", "no diabetes") ~ "No",
       TRUE ~ NA_character_
     ),
+
+    # Convert smoking status values to lowercase first.
     smoking_status = str_to_lower(smoking_status),
+
+    # Recode smoking status into standard labels.
     smoking_status = case_when(
       smoking_status %in% c("never", "n", "never smoker") ~ "Never",
       smoking_status %in% c("former", "ex-smoker", "past smoker") ~ "Former",
       smoking_status %in% c("current", "c", "smoker") ~ "Current",
       TRUE ~ NA_character_
     ),
+
+    # Convert recruitment site to title case.
     recruitment_site = str_to_title(recruitment_site),
+
+    # Convert study group to title case.
     study_group = str_to_title(study_group)
   )
 ```
@@ -336,10 +474,25 @@ clean_data <- clean_data %>%
 Check the cleaned categories.
 
 ```{r}
+# Count participants by sex.
 clean_data %>% count(sex)
+
+# Count participants by diabetes status.
 clean_data %>% count(diabetes_status)
+
+# Count participants by smoking status.
 clean_data %>% count(smoking_status)
 ```
+
+The `NA` values remain because some participants either had missing values in the original dataset or had values that were not included in our recoding rules. This is expected. In real research, we should inspect these values carefully before deciding whether to keep them as missing, correct them manually, or add more recoding rules.
+
+::: callout-tip
+## What does `TRUE ~ NA_character_` mean?
+
+In `case_when()`, `TRUE ~ NA_character_` means: if a value does not match any of the rules above, turn it into a missing text value.
+
+This is useful in a teaching example, but in real research you should inspect unmatched values before converting them to missing.
+:::
 
 ## 14. Check impossible or suspicious values
 
@@ -347,32 +500,79 @@ This is where medical judgement matters. Some values may be technically numeric 
 
 For this teaching dataset, we will use simple example cut-offs.
 
+In the code below, each `filter()` statement identifies rows with suspicious values for one variable. Then `transmute()` creates a small report showing the participant ID, the variable name, the suspicious value, and the reason it was flagged. Finally, `bind_rows()` combines all of these small reports into one table.
+
 ```{r}
+# Create a report of suspicious values.
 suspicious_values <- bind_rows(
+
+  # Check age values.
   clean_data %>%
     filter(age < 0 | age > 120) %>%
-    transmute(participant_id, variable = "age", value = as.character(age), reason = "Age outside 0-120"),
+    transmute(
+      participant_id,
+      variable = "age",
+      value = as.character(age),
+      reason = "Age outside 0-120"
+    ),
+
+  # Check BMI values.
   clean_data %>%
     filter(bmi < 10 | bmi > 80) %>%
-    transmute(participant_id, variable = "bmi", value = as.character(bmi), reason = "BMI outside 10-80"),
+    transmute(
+      participant_id,
+      variable = "bmi",
+      value = as.character(bmi),
+      reason = "BMI outside 10-80"
+    ),
+
+  # Check systolic blood pressure values.
   clean_data %>%
     filter(systolic_bp < 70 | systolic_bp > 250) %>%
-    transmute(participant_id, variable = "systolic_bp", value = as.character(systolic_bp), reason = "Systolic BP outside 70-250"),
+    transmute(
+      participant_id,
+      variable = "systolic_bp",
+      value = as.character(systolic_bp),
+      reason = "Systolic BP outside 70-250"
+    ),
+
+  # Check diastolic blood pressure values.
   clean_data %>%
     filter(diastolic_bp < 40 | diastolic_bp > 150) %>%
-    transmute(participant_id, variable = "diastolic_bp", value = as.character(diastolic_bp), reason = "Diastolic BP outside 40-150"),
+    transmute(
+      participant_id,
+      variable = "diastolic_bp",
+      value = as.character(diastolic_bp),
+      reason = "Diastolic BP outside 40-150"
+    ),
+
+  # Check HbA1c values.
   clean_data %>%
     filter(hba1c_mmol_mol < 15 | hba1c_mmol_mol > 160) %>%
-    transmute(participant_id, variable = "hba1c_mmol_mol", value = as.character(hba1c_mmol_mol), reason = "HbA1c outside 15-160"),
+    transmute(
+      participant_id,
+      variable = "hba1c_mmol_mol",
+      value = as.character(hba1c_mmol_mol),
+      reason = "HbA1c outside 15-160"
+    ),
+
+  # Check exercise minutes.
   clean_data %>%
     filter(exercise_minutes_per_week < 0 | exercise_minutes_per_week > 2000) %>%
-    transmute(participant_id, variable = "exercise_minutes_per_week", value = as.character(exercise_minutes_per_week), reason = "Exercise minutes outside 0-2000")
+    transmute(
+      participant_id,
+      variable = "exercise_minutes_per_week",
+      value = as.character(exercise_minutes_per_week),
+      reason = "Exercise minutes outside 0-2000"
+    )
 )
 
+# Print the suspicious values report.
 suspicious_values
 ```
 
 ```{r}
+# Save the suspicious values report.
 write_csv(suspicious_values, "outputs/suspicious_values_report.csv")
 ```
 
@@ -387,13 +587,25 @@ These cut-offs are used for teaching. In real research, plausibility rules shoul
 After creating a report, we can replace impossible values with `NA`.
 
 ```{r}
+# Replace impossible values with missing values.
 clean_data <- clean_data %>%
   mutate(
+    # Replace impossible age values.
     age = if_else(age < 0 | age > 120, NA_real_, age),
+
+    # Replace impossible BMI values.
     bmi = if_else(bmi < 10 | bmi > 80, NA_real_, bmi),
+
+    # Replace impossible systolic BP values.
     systolic_bp = if_else(systolic_bp < 70 | systolic_bp > 250, NA_real_, systolic_bp),
+
+    # Replace impossible diastolic BP values.
     diastolic_bp = if_else(diastolic_bp < 40 | diastolic_bp > 150, NA_real_, diastolic_bp),
+
+    # Replace impossible HbA1c values.
     hba1c_mmol_mol = if_else(hba1c_mmol_mol < 15 | hba1c_mmol_mol > 160, NA_real_, hba1c_mmol_mol),
+
+    # Replace impossible exercise minute values.
     exercise_minutes_per_week = if_else(
       exercise_minutes_per_week < 0 | exercise_minutes_per_week > 2000,
       NA_real_,
@@ -406,9 +618,10 @@ We are not pretending those values never existed. We have already saved them in 
 
 ## 16. Count missing values after cleaning
 
-Now repeat the missing value count.
+Now repeat the missing value count. Some variables may have more missing values now because impossible values have been replaced with `NA`.
 
 ```{r}
+# Count missing values after cleaning.
 missing_after_cleaning <- clean_data %>%
   summarise(across(everything(), ~ sum(is.na(.x)))) %>%
   pivot_longer(
@@ -422,7 +635,8 @@ missing_after_cleaning
 ```
 
 ```{r}
-write_csv(missing_after_cleaning, "outputs/missing_value_summary.csv")
+# Save the after-cleaning missing value report.
+write_csv(missing_after_cleaning, "outputs/missing_values_after_cleaning.csv")
 ```
 
 ## 17. Create a cleaning summary
@@ -430,6 +644,7 @@ write_csv(missing_after_cleaning, "outputs/missing_value_summary.csv")
 A cleaning summary helps readers understand what changed.
 
 ```{r}
+# Summarise key changes made during cleaning.
 data_cleaning_summary <- tibble(
   cleaning_step = c(
     "Raw dataset",
@@ -445,10 +660,12 @@ data_cleaning_summary <- tibble(
   )
 )
 
+# Print the cleaning summary.
 data_cleaning_summary
 ```
 
 ```{r}
+# Save the cleaning summary.
 write_csv(data_cleaning_summary, "outputs/data_cleaning_summary.csv")
 ```
 
@@ -457,6 +674,7 @@ write_csv(data_cleaning_summary, "outputs/data_cleaning_summary.csv")
 A **variable dictionary** explains what each variable means. This is a very useful habit in research projects.
 
 ```{r}
+# Create a variable dictionary for the cleaned dataset.
 variable_dictionary <- tribble(
   ~variable, ~description, ~type, ~cleaning_note,
   "participant_id", "Unique fictional participant identifier", "Identifier", "Cleaned to uppercase and stripped of extra spaces",
@@ -477,6 +695,7 @@ variable_dictionary
 ```
 
 ```{r}
+# Save the variable dictionary.
 write_csv(variable_dictionary, "outputs/variable_dictionary.csv")
 ```
 
@@ -485,6 +704,7 @@ write_csv(variable_dictionary, "outputs/variable_dictionary.csv")
 Now save the cleaned dataset separately.
 
 ```{r}
+# Save the cleaned dataset.
 write_csv(clean_data, "data_cleaned/rise_sample_health_data_cleaned.csv")
 ```
 
@@ -495,11 +715,15 @@ The raw dataset remains in `data_raw/`. The cleaned dataset is now in `data_clea
 Always inspect the cleaned dataset before moving on.
 
 ```{r}
+# Check variable types and example values.
 glimpse(clean_data)
+
+# Produce a basic summary of each variable.
 summary(clean_data)
 ```
 
 ```{r}
+# Create simple frequency tables.
 clean_data %>% tabyl(sex)
 clean_data %>% tabyl(smoking_status)
 clean_data %>% tabyl(diabetes_status)
@@ -508,8 +732,9 @@ clean_data %>% tabyl(diabetes_status)
 A simple plot can also help check whether the cleaned data looks sensible.
 
 ```{r}
+# Plot the BMI distribution after cleaning.
 ggplot(clean_data, aes(x = bmi)) +
-  geom_histogram(binwidth = 2, colour = "white") +
+  geom_histogram(binwidth = 2, colour = "white", na.rm = TRUE) +
   labs(
     title = "Distribution of BMI after cleaning",
     x = "BMI",
@@ -524,9 +749,9 @@ Using the messy dataset, try to reproduce the cleaning workflow yourself.
 
 1.  Import the raw dataset.
 2.  Inspect the first few rows.
-3.  Count missing values.
-4.  Clean column names.
-5.  Clean participant IDs.
+3.  Clean column names.
+4.  Count missing values before cleaning.
+5.  Clean participant IDs and extra spaces.
 6.  Find duplicate participant IDs.
 7.  Convert numeric variables.
 8.  Standardise categorical variables.
@@ -536,15 +761,31 @@ Using the messy dataset, try to reproduce the cleaning workflow yourself.
 ## 22. Common beginner mistakes
 
 | Mistake | Why it matters |
-|-----------------------------------|-----------------------------------|
+|------------------------------------|------------------------------------|
 | Overwriting the raw dataset | You lose the original record |
 | Deleting all missing values too early | You may remove too much data without thinking |
 | Assuming duplicate IDs are always errors | They may represent repeated visits or follow-up |
 | Cleaning manually in Excel without a record | The work becomes hard to check or repeat |
 | Changing values without documenting why | Later readers cannot understand your decisions |
+| Ignoring variable types | Numbers stored as text cannot be analysed properly |
+| Forgetting to save cleaning reports | You lose the audit trail of what changed |
 
 ## 23. What comes next?
 
 Now that the dataset is clean, we can start asking research questions.
 
 In Article 3, we will use the cleaned dataset to create descriptive summaries, build a simple Table 1, compare groups, and make cleaner exploratory figures.
+
+## Appendix
+
+You can download the files used in this article here:
+
+<ol>
+
+<li><a href="https://github.com/Ziyao-Geng/RISE-Data-Science-Articles/tree/main/article_02_data_cleaning_in_r" target="_blank">View all the files used to create this article on GitHub</a></li>
+
+<li><a href="data_raw/rise_sample_health_data_messy.csv" download>Download the sample messy health dataset</a></li>
+
+<li><a href="article_02_cleaning_clinical_research_data.qmd" download>Download the Quarto file used to create this article</a></li>
+
+</ol>

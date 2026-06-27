@@ -1,3 +1,3 @@
 comparison,test,p_value
-BMI by diabetes status,Two-sample t-test,0.07699428635688267
-Sex by diabetes status,Chi-square test,0.6958315166013493
+BMI by diabetes status,Two-sample t-test,0.077
+Sex by diabetes status,Chi-square test,0.696

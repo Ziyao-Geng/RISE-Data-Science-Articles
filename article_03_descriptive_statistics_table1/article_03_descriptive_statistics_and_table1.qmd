@@ -45,41 +45,65 @@ This is not just a box-ticking exercise. Descriptive statistics are how we notic
 
 ## 2. Load packages
 
-We will use the same beginner-friendly packages as before.
+We will use a few beginner-friendly packages:
+
+- `tidyverse` for data manipulation and plotting;
+- `janitor` for simple data-cleaning helpers;
+- `knitr` for making cleaner tables in the rendered HTML article.
 
 ```{r}
 #| eval: false
-# Run this only if the packages are not already installed.
-install.packages("tidyverse")
-install.packages("janitor")
+# Run this installation code only if these packages are not already installed.
+# You do not need to run install.packages() every time you open the file.
+install.packages(c("tidyverse", "janitor", "knitr"))
 ```
 
 ```{r}
+# Load packages for this article.
 library(tidyverse)
 library(janitor)
+library(knitr)
 
+# Create folders for outputs if they do not already exist.
+# showWarnings = FALSE prevents R from complaining if the folder already exists.
 dir.create("outputs", showWarnings = FALSE)
 dir.create("figures", showWarnings = FALSE)
+
+# This option tells knitr to display missing values as blank cells in kable tables.
+# That usually looks cleaner than printing "NA" repeatedly in a table.
+options(knitr.kable.NA = "")
 ```
 
 ## 3. Import the cleaned dataset
 
-This article uses the cleaned dataset from Article 2.
+This article uses the cleaned dataset from Article 2. The expected file path is:
+
+``` text
+data/rise_sample_health_data_cleaned.csv
+```
 
 ```{r}
+# Store the file path in one object so that it is easy to change later.
 data_path <- "data/rise_sample_health_data_cleaned.csv"
 
+# Stop early with a helpful error message if the file is not found.
+# This is easier for beginners to understand than a long read_csv() error.
 if (!file.exists(data_path)) {
   stop("Cannot find the cleaned dataset. Check that rise_sample_health_data_cleaned.csv is inside the data/ folder.")
 }
 
+# Import the cleaned dataset.
+# show_col_types = FALSE hides a long message about guessed column types.
 clean_data <- read_csv(data_path, show_col_types = FALSE)
 ```
 
-Inspect the data.
+Inspect the data before doing anything else.
 
 ```{r}
+# glimpse() gives a compact overview of column names, data types, and example values.
 glimpse(clean_data)
+
+# head() prints the first six rows.
 head(clean_data)
 ```
 
@@ -88,6 +112,8 @@ head(clean_data)
 For this article, we will separate variables into two broad groups.
 
 ```{r}
+# Continuous variables are numeric measurements.
+# Examples: age, BMI, blood pressure, and HbA1c.
 continuous_vars <- c(
   "age",
   "bmi",
@@ -97,6 +123,8 @@ continuous_vars <- c(
   "exercise_minutes_per_week"
 )
 
+# Categorical variables are groups or labels.
+# Examples: sex, smoking status, diabetes status, and recruitment site.
 categorical_vars <- c(
   "sex",
   "smoking_status",
@@ -106,13 +134,43 @@ categorical_vars <- c(
 )
 ```
 
-Continuous variables are numeric measurements. Categorical variables are groups or labels.
+It is also useful to create readable labels for variables. These labels will make our tables easier to read.
+
+```{r}
+# Named character vectors are a simple way to translate internal column names
+# into reader-friendly table labels.
+variable_labels <- c(
+  age = "Age (years)",
+  bmi = "BMI (kg/m²)",
+  systolic_bp = "Systolic blood pressure (mmHg)",
+  diastolic_bp = "Diastolic blood pressure (mmHg)",
+  hba1c_mmol_mol = "HbA1c (mmol/mol)",
+  exercise_minutes_per_week = "Exercise minutes per week",
+  sex = "Sex",
+  smoking_status = "Smoking status",
+  diabetes_status = "Diabetes status",
+  recruitment_site = "Recruitment site",
+  study_group = "Study group"
+)
+
+# This helper function replaces column names with the labels above.
+# If a variable is not listed in variable_labels, it creates a simple label
+# by replacing underscores with spaces.
+label_variables <- function(x) {
+  labelled <- unname(variable_labels[x])
+  fallback <- str_to_sentence(str_replace_all(x, "_", " "))
+  if_else(is.na(labelled), fallback, labelled)
+}
+```
 
 ## 5. Count missing values
 
 Even after cleaning, some missing values may remain. That is normal. The important thing is to know where they are.
 
 ```{r}
+# For each column, count how many values are missing.
+# is.na(.x) returns TRUE for missing values.
+# sum(is.na(.x)) counts the TRUE values.
 missing_summary <- clean_data %>%
   summarise(across(everything(), ~ sum(is.na(.x)))) %>%
   pivot_longer(
@@ -122,10 +180,25 @@ missing_summary <- clean_data %>%
   ) %>%
   arrange(desc(missing_n))
 
-missing_summary
+# Create a display version with nicer variable names.
+missing_summary_display <- missing_summary %>%
+  mutate(variable = label_variables(variable)) %>%
+  rename(
+    Variable = variable,
+    `Missing values` = missing_n
+  )
+
+# Display the table neatly in the rendered HTML article.
+kable(
+  missing_summary_display,
+  caption = "Missing values by variable",
+  align = "l",
+  table.attr = 'class="table table-striped table-hover"'
+)
 ```
 
 ```{r}
+# Save the raw missing-value summary as a CSV file.
 write_csv(missing_summary, "outputs/article_03_missing_summary.csv")
 ```
 
@@ -141,6 +214,8 @@ For continuous variables, common summaries include:
 - minimum and maximum.
 
 ```{r}
+# Summarise all continuous variables at once.
+# across() applies the same summary functions to every selected variable.
 continuous_summary <- clean_data %>%
   summarise(
     across(
@@ -167,10 +242,32 @@ continuous_summary <- clean_data %>%
     across(where(is.numeric), ~ round(.x, 1))
   )
 
-continuous_summary
+# Create a display version with clearer column names.
+continuous_summary_display <- continuous_summary %>%
+  mutate(variable = label_variables(variable)) %>%
+  rename(
+    Variable = variable,
+    N = n,
+    Mean = mean,
+    SD = sd,
+    Median = median,
+    Q1 = q1,
+    Q3 = q3,
+    Minimum = min,
+    Maximum = max
+  )
+
+kable(
+  continuous_summary_display,
+  caption = "Summary of continuous variables",
+  digits = 1,
+  align = "l",
+  table.attr = 'class="table table-striped table-hover"'
+)
 ```
 
 ```{r}
+# Save the continuous-variable summary as a CSV file.
 write_csv(continuous_summary, "outputs/article_03_continuous_summary.csv")
 ```
 
@@ -179,6 +276,8 @@ write_csv(continuous_summary, "outputs/article_03_continuous_summary.csv")
 For categorical variables, we usually report counts and percentages.
 
 ```{r}
+# Convert categorical columns into a long format.
+# This makes it easy to count each category within each variable.
 categorical_summary <- clean_data %>%
   select(all_of(categorical_vars)) %>%
   pivot_longer(
@@ -195,10 +294,28 @@ categorical_summary <- clean_data %>%
   ) %>%
   ungroup()
 
-categorical_summary
+# Create a display version with nicer labels.
+categorical_summary_display <- categorical_summary %>%
+  mutate(variable = label_variables(variable)) %>%
+  rename(
+    Variable = variable,
+    Category = category,
+    N = n,
+    Percent = percent,
+    `n (%)` = result
+  )
+
+kable(
+  categorical_summary_display,
+  caption = "Summary of categorical variables",
+  digits = 1,
+  align = "l",
+  table.attr = 'class="table table-striped table-hover"'
+)
 ```
 
 ```{r}
+# Save the categorical-variable summary as a CSV file.
 write_csv(categorical_summary, "outputs/article_03_categorical_summary.csv")
 ```
 
@@ -210,66 +327,191 @@ It usually describes the study population using variables such as age, sex, BMI,
 
 A Table 1 is not mainly about proving a hypothesis. It helps readers understand who is in the study.
 
-## 9. Create a simple overall Table 1
+For example, a Table 1 might show:
 
-To keep this article beginner-friendly, we will create a simple Table 1 using `dplyr` rather than specialised packages.
+- median age and interquartile range;
+- number and percentage of female and male participants;
+- median BMI and blood pressure;
+- smoking status;
+- baseline disease status;
+- number of participants in each study group.
 
-First, create a formatted table for continuous variables.
+## 9. Make prettier tables with `kable()`
+
+By default, R prints data frames in a plain console style. That is fine while coding, but it does not always look professional in a rendered article.
+
+The `kable()` function from the `knitr` package converts a data frame into a cleaner table.
+
+The basic pattern is:
 
 ```{r}
+#| eval: false
+# Basic kable structure:
+kable(
+  your_data_frame,
+  caption = "Your table title here"
+)
+```
+
+For this article, we will use the following slightly more polished version:
+
+```{r}
+#| eval: false
+kable(
+  your_data_frame,
+  caption = "Your table title here",
+  digits = 1,
+  align = "l",
+  table.attr = 'class="table table-striped table-hover"'
+)
+```
+
+What each argument means:
+
+- `caption` adds a title above the table;
+- `digits` controls how many decimal places are shown for numeric columns;
+- `align = "l"` left-aligns table columns;
+- `table.attr` adds Bootstrap table styling in the rendered HTML file.
+
+The key idea is simple: **create the data frame first, then use `kable()` only for displaying it nicely**. Do not use `kable()` as your main data object because it is designed for presentation, not analysis.
+
+## 10. Create a simple overall Table 1
+
+To keep this article beginner-friendly, we will create a simple Table 1 using `dplyr` rather than specialised Table 1 packages.
+
+First, we create small helper functions to format values consistently.
+
+```{r}
+# Format a continuous variable as median [Q1, Q3].
+# This is a common clinical Table 1 style when variables are skewed.
+format_median_iqr <- function(median, q1, q3, digits = 1) {
+  paste0(
+    round(median, digits),
+    " [",
+    round(q1, digits),
+    ", ",
+    round(q3, digits),
+    "]"
+  )
+}
+
+# Format a categorical variable as n (%).
+format_n_percent <- function(n, percent, digits = 1) {
+  paste0(n, " (", round(percent, digits), "%)")
+}
+```
+
+Create the continuous-variable part of Table 1.
+
+```{r}
+# Use the continuous summary created earlier.
+# Each continuous variable becomes one row in the Table 1.
 table1_continuous <- continuous_summary %>%
   transmute(
-    variable,
-    summary = paste0(
-      median,
-      " [",
-      q1,
-      ", ",
-      q3,
-      "]"
-    ),
-    format = "Median [IQR]"
+    Characteristic = label_variables(variable),
+    Overall = format_median_iqr(median, q1, q3),
+    Statistic = "Median [IQR]"
   )
 
-table1_continuous
+kable(
+  table1_continuous,
+  caption = "Continuous variables for Table 1",
+  align = "l",
+  table.attr = 'class="table table-striped table-hover"'
+)
 ```
 
-Now create a formatted table for categorical variables.
+Create the categorical-variable part of Table 1.
 
 ```{r}
+# For categorical variables, each category becomes one row.
+# Example: "Sex: Female" and "Sex: Male" become separate rows.
 table1_categorical <- categorical_summary %>%
   transmute(
-    variable = paste0(variable, ": ", category),
-    summary = result,
-    format = "n (%)"
+    Characteristic = paste0(label_variables(variable), ": ", category),
+    Overall = result,
+    Statistic = "n (%)"
   )
 
-table1_categorical
+kable(
+  table1_categorical,
+  caption = "Categorical variables for Table 1",
+  align = "l",
+  table.attr = 'class="table table-striped table-hover"'
+)
 ```
 
-Combine both into one table.
+Combine the continuous and categorical rows into one overall Table 1.
 
 ```{r}
+# Add a first row showing the total number of participants.
+table1_n <- tibble(
+  Characteristic = "Number of participants",
+  Overall = as.character(nrow(clean_data)),
+  Statistic = "n"
+)
+
+# bind_rows() stacks tables with the same column names on top of each other.
 table1_overall <- bind_rows(
+  table1_n,
   table1_continuous,
   table1_categorical
 )
 
-table1_overall
+kable(
+  table1_overall,
+  caption = "Table 1. Overall baseline characteristics",
+  align = "l",
+  table.attr = 'class="table table-striped table-hover"'
+)
 ```
 
 ```{r}
+# Save the overall Table 1 as a CSV file.
+# The CSV is useful for sharing, checking, or uploading elsewhere.
 write_csv(table1_overall, "outputs/article_03_table1_overall.csv")
 ```
 
-## 10. Create Table 1 by diabetes status
+## 11. Create Table 1 by diabetes status
 
 Often, we want to describe the dataset by a key grouping variable. Here, we will use `diabetes_status`.
 
-First, summarise continuous variables by diabetes status.
+Before making the table, we create one object containing the categorical variables that should be summarised **by** diabetes status.
 
 ```{r}
+# Because diabetes_status is the grouping variable, we do not also summarise
+# diabetes_status as a categorical variable inside each diabetes_status group.
+categorical_vars_by_diabetes <- setdiff(categorical_vars, "diabetes_status")
+```
+
+First, count the number of participants in each diabetes-status group.
+
+```{r}
+# This creates the first row of the grouped Table 1.
+table1_by_diabetes_n <- clean_data %>%
+  filter(!is.na(diabetes_status)) %>%
+  count(diabetes_status, name = "n") %>%
+  mutate(
+    Characteristic = "Number of participants",
+    Statistic = "n",
+    summary = as.character(n)
+  ) %>%
+  select(Characteristic, Statistic, diabetes_status, summary) %>%
+  pivot_wider(
+    names_from = diabetes_status,
+    values_from = summary
+  )
+
+table1_by_diabetes_n
+```
+
+Now summarise continuous variables by diabetes status.
+
+```{r}
+# group_by(diabetes_status) tells R to calculate summaries separately
+# for each diabetes-status group.
 table1_by_diabetes_continuous <- clean_data %>%
+  filter(!is.na(diabetes_status)) %>%
   group_by(diabetes_status) %>%
   summarise(
     across(
@@ -289,69 +531,96 @@ table1_by_diabetes_continuous <- clean_data %>%
     names_pattern = "(.*)_(median|q1|q3)$"
   ) %>%
   mutate(
-    summary = paste0(
-      round(median, 1),
-      " [",
-      round(q1, 1),
-      ", ",
-      round(q3, 1),
-      "]"
-    )
+    Characteristic = label_variables(variable),
+    Statistic = "Median [IQR]",
+    summary = format_median_iqr(median, q1, q3)
   ) %>%
-  select(variable, diabetes_status, summary) %>%
-  pivot_wider(names_from = diabetes_status, values_from = summary)
+  select(Characteristic, Statistic, diabetes_status, summary) %>%
+  pivot_wider(
+    names_from = diabetes_status,
+    values_from = summary
+  )
 
-table1_by_diabetes_continuous
+kable(
+  table1_by_diabetes_continuous,
+  caption = "Continuous variables by diabetes status",
+  align = "l",
+  table.attr = 'class="table table-striped table-hover"'
+)
 ```
 
 Now summarise categorical variables by diabetes status.
 
 ```{r}
+# For categorical variables, the denominator should be the number of non-missing
+# observations within each diabetes-status group and each variable.
 table1_by_diabetes_categorical <- clean_data %>%
-  select(diabetes_status, all_of(categorical_vars)) %>%
-  select(-diabetes_status, everything(), diabetes_status) %>%
+  filter(!is.na(diabetes_status)) %>%
+  select(diabetes_status, all_of(categorical_vars_by_diabetes)) %>%
   pivot_longer(
-    cols = all_of(setdiff(categorical_vars, "diabetes_status")),
+    cols = all_of(categorical_vars_by_diabetes),
     names_to = "variable",
     values_to = "category"
   ) %>%
-  filter(!is.na(category), !is.na(diabetes_status)) %>%
+  filter(!is.na(category)) %>%
   count(diabetes_status, variable, category, name = "n") %>%
   group_by(diabetes_status, variable) %>%
   mutate(
-    percent = round(100 * n / sum(n), 1),
-    summary = paste0(n, " (", percent, "%)")
+    percent = 100 * n / sum(n),
+    summary = format_n_percent(n, percent)
   ) %>%
   ungroup() %>%
-  mutate(variable = paste0(variable, ": ", category)) %>%
-  select(variable, diabetes_status, summary) %>%
-  pivot_wider(names_from = diabetes_status, values_from = summary)
+  mutate(
+    Characteristic = paste0(label_variables(variable), ": ", category),
+    Statistic = "n (%)"
+  ) %>%
+  select(Characteristic, Statistic, diabetes_status, summary) %>%
+  pivot_wider(
+    names_from = diabetes_status,
+    values_from = summary,
+    values_fill = "0 (0.0%)"
+  )
 
-table1_by_diabetes_categorical
+kable(
+  table1_by_diabetes_categorical,
+  caption = "Categorical variables by diabetes status",
+  align = "l",
+  table.attr = 'class="table table-striped table-hover"'
+)
 ```
 
-Combine them.
+Combine the grouped Table 1.
 
 ```{r}
+# Stack the N row, continuous rows, and categorical rows into one table.
 table1_by_diabetes <- bind_rows(
+  table1_by_diabetes_n,
   table1_by_diabetes_continuous,
   table1_by_diabetes_categorical
 )
 
-table1_by_diabetes
+kable(
+  table1_by_diabetes,
+  caption = "Table 1. Baseline characteristics by diabetes status",
+  align = "l",
+  table.attr = 'class="table table-striped table-hover"'
+)
 ```
 
 ```{r}
+# Save the grouped Table 1 as a CSV file.
 write_csv(table1_by_diabetes, "outputs/article_03_table1_by_diabetes_status.csv")
 ```
 
-## 11. Visualise key variables
+## 12. Visualise key variables
 
 Descriptive tables are useful, but plots often reveal patterns more quickly.
 
 ### BMI distribution
 
 ```{r}
+# A histogram shows the distribution of one numeric variable.
+# binwidth controls how wide each bar is.
 bmi_plot <- ggplot(clean_data, aes(x = bmi)) +
   geom_histogram(binwidth = 2, colour = "white") +
   labs(
@@ -365,12 +634,21 @@ bmi_plot
 ```
 
 ```{r}
-ggsave("figures/article_03_bmi_distribution.png", bmi_plot, width = 7, height = 5, dpi = 300)
+# Save the plot as a high-resolution PNG file.
+ggsave(
+  "figures/article_03_bmi_distribution.png",
+  bmi_plot,
+  width = 7,
+  height = 5,
+  dpi = 300
+)
 ```
 
 ### HbA1c by diabetes status
 
 ```{r}
+# A boxplot compares a numeric variable across groups.
+# geom_jitter() adds individual points so readers can see the raw data pattern.
 hba1c_plot <- ggplot(clean_data, aes(x = diabetes_status, y = hba1c_mmol_mol)) +
   geom_boxplot() +
   geom_jitter(width = 0.15, alpha = 0.6) +
@@ -385,12 +663,21 @@ hba1c_plot
 ```
 
 ```{r}
-ggsave("figures/article_03_hba1c_by_diabetes_status.png", hba1c_plot, width = 7, height = 5, dpi = 300)
+# Save the HbA1c boxplot.
+ggsave(
+  "figures/article_03_hba1c_by_diabetes_status.png",
+  hba1c_plot,
+  width = 7,
+  height = 5,
+  dpi = 300
+)
 ```
 
 ### BMI and HbA1c
 
 ```{r}
+# A scatter plot shows the relationship between two numeric variables.
+# geom_smooth(method = "lm") adds a simple linear trend line.
 bmi_hba1c_plot <- ggplot(clean_data, aes(x = bmi, y = hba1c_mmol_mol)) +
   geom_point(alpha = 0.7) +
   geom_smooth(method = "lm", se = TRUE) +
@@ -405,10 +692,17 @@ bmi_hba1c_plot
 ```
 
 ```{r}
-ggsave("figures/article_03_bmi_hba1c_scatter.png", bmi_hba1c_plot, width = 7, height = 5, dpi = 300)
+# Save the BMI-HbA1c scatter plot.
+ggsave(
+  "figures/article_03_bmi_hba1c_scatter.png",
+  bmi_hba1c_plot,
+  width = 7,
+  height = 5,
+  dpi = 300
+)
 ```
 
-## 12. First simple group comparisons
+## 13. First simple group comparisons
 
 Descriptive statistics tell us what the data look like. A statistical test asks whether an observed difference is larger than we might expect by chance, under a particular set of assumptions.
 
@@ -420,13 +714,15 @@ In this beginner article, the goal is not to memorise tests. The goal is to unde
 A statistical test should follow the research question, study design, variable type, and assumptions. Do not choose tests by habit alone.
 :::
 
-## 13. Compare BMI by diabetes status
+## 14. Compare BMI by diabetes status
 
 BMI is numeric. Diabetes status has two groups: `Yes` and `No`.
 
 A simple first comparison is a two-sample t-test.
 
 ```{r}
+# t.test(y ~ group, data = dataset) compares the mean of y between groups.
+# Here, y is BMI and the group is diabetes status.
 bmi_t_test <- t.test(bmi ~ diabetes_status, data = clean_data)
 
 bmi_t_test
@@ -435,30 +731,62 @@ bmi_t_test
 We can store the key result in a small table.
 
 ```{r}
+# Store the test result in a tibble so it can be exported and displayed neatly.
 bmi_t_test_summary <- tibble(
   comparison = "BMI by diabetes status",
   test = "Two-sample t-test",
   p_value = bmi_t_test$p.value
-)
+) %>%
+  mutate(
+    p_value = case_when(
+      p_value < 0.001 ~ "<0.001",
+      TRUE ~ as.character(round(p_value, 3))
+    )
+  )
 
-bmi_t_test_summary
+bmi_t_test_summary_display <- bmi_t_test_summary %>%
+  rename(
+    Comparison = comparison,
+    Test = test,
+    `p-value` = p_value
+  )
+
+kable(
+  bmi_t_test_summary_display,
+  caption = "BMI comparison by diabetes status",
+  align = "l",
+  table.attr = 'class="table table-striped table-hover"'
+)
 ```
 
 ```{r}
+# Save the t-test summary.
 write_csv(bmi_t_test_summary, "outputs/article_03_bmi_t_test_summary.csv")
 ```
 
-## 14. Compare sex distribution by diabetes status
+## 15. Compare sex distribution by diabetes status
 
 Sex and diabetes status are both categorical variables. A simple first comparison is a chi-square test.
 
 ```{r}
+# table() creates a cross-tabulation of two categorical variables.
 sex_diabetes_table <- table(clean_data$sex, clean_data$diabetes_status)
 
-sex_diabetes_table
+# Convert the table object into a data frame so kable() can display it neatly.
+sex_diabetes_table_display <- sex_diabetes_table %>%
+  as.data.frame.matrix() %>%
+  rownames_to_column(var = "Sex")
+
+kable(
+  sex_diabetes_table_display,
+  caption = "Sex by diabetes status",
+  align = "l",
+  table.attr = 'class="table table-striped table-hover"'
+)
 ```
 
 ```{r}
+# chisq.test() tests whether two categorical variables are associated.
 sex_diabetes_chisq <- chisq.test(sex_diabetes_table)
 
 sex_diabetes_chisq
@@ -467,16 +795,36 @@ sex_diabetes_chisq
 Save the result.
 
 ```{r}
+# Store the chi-square result in a small summary table.
 sex_diabetes_chisq_summary <- tibble(
   comparison = "Sex by diabetes status",
   test = "Chi-square test",
   p_value = sex_diabetes_chisq$p.value
-)
+) %>%
+  mutate(
+    p_value = case_when(
+      p_value < 0.001 ~ "<0.001",
+      TRUE ~ as.character(round(p_value, 3))
+    )
+  )
 
-sex_diabetes_chisq_summary
+sex_diabetes_chisq_summary_display <- sex_diabetes_chisq_summary %>%
+  rename(
+    Comparison = comparison,
+    Test = test,
+    `p-value` = p_value
+  )
+
+kable(
+  sex_diabetes_chisq_summary_display,
+  caption = "Chi-square test summary",
+  align = "l",
+  table.attr = 'class="table table-striped table-hover"'
+)
 ```
 
 ```{r}
+# Save the chi-square summary.
 write_csv(sex_diabetes_chisq_summary, "outputs/article_03_sex_diabetes_chisq_summary.csv")
 ```
 
@@ -488,11 +836,13 @@ A p-value does not tell us whether a result is clinically important. It only hel
 Clinical judgement, study design, sample size, effect size, confidence intervals, and prior evidence all matter.
 :::
 
-## 15. Add confidence intervals for a mean
+## 16. Add confidence intervals for a mean
 
 Confidence intervals are often more informative than p-values alone. Here is a simple example using mean BMI.
 
 ```{r}
+# Calculate a 95% confidence interval for the mean BMI.
+# The standard error estimates how precisely the sample mean estimates the population mean.
 bmi_mean_ci <- clean_data %>%
   summarise(
     n = sum(!is.na(bmi)),
@@ -504,31 +854,62 @@ bmi_mean_ci <- clean_data %>%
   ) %>%
   mutate(across(where(is.numeric), ~ round(.x, 2)))
 
-bmi_mean_ci
+bmi_mean_ci_display <- bmi_mean_ci %>%
+  rename(
+    N = n,
+    `Mean BMI` = mean_bmi,
+    `SD BMI` = sd_bmi,
+    `Standard error` = standard_error,
+    `Lower 95% CI` = lower_95_ci,
+    `Upper 95% CI` = upper_95_ci
+  )
+
+kable(
+  bmi_mean_ci_display,
+  caption = "Mean BMI with 95% confidence interval",
+  digits = 2,
+  align = "l",
+  table.attr = 'class="table table-striped table-hover"'
+)
 ```
 
 ```{r}
+# Save the confidence interval table.
 write_csv(bmi_mean_ci, "outputs/article_03_bmi_mean_confidence_interval.csv")
 ```
 
-## 16. Export a simple analysis summary
+## 17. Export a simple analysis summary
 
 It is useful to save important outputs rather than relying only on what appears in the console.
 
 ```{r}
+# Combine the two simple test summaries into one analysis summary table.
 analysis_summary <- bind_rows(
   bmi_t_test_summary,
   sex_diabetes_chisq_summary
 )
 
-analysis_summary
+analysis_summary_display <- analysis_summary %>%
+  rename(
+    Comparison = comparison,
+    Test = test,
+    `p-value` = p_value
+  )
+
+kable(
+  analysis_summary_display,
+  caption = "Summary of simple group comparisons",
+  align = "l",
+  table.attr = 'class="table table-striped table-hover"'
+)
 ```
 
 ```{r}
+# Save the analysis summary.
 write_csv(analysis_summary, "outputs/article_03_simple_analysis_summary.csv")
 ```
 
-## 17. Mini activity
+## 18. Mini activity
 
 Using the cleaned dataset, try to answer these questions.
 
@@ -540,17 +921,18 @@ Using the cleaned dataset, try to answer these questions.
 6.  Decide whether each variable is continuous, categorical, binary, or ordinal.
 7.  Write one sentence describing the study population.
 
-## 18. Common beginner mistakes
+## 19. Common beginner mistakes
 
 | Mistake | Why it matters |
-|----|----|
+|------------------------------------|------------------------------------|
 | Running tests before looking at the data | You may miss obvious errors or strange distributions |
 | Reporting only p-values | P-values do not show size or clinical importance |
 | Ignoring missing values | Different variables may have different sample sizes |
 | Using the wrong denominator for percentages | Percentages can become misleading |
 | Treating Table 1 as an afterthought | Table 1 is often the first thing readers use to understand your study |
+| Using `kable()` as the data object | `kable()` is for presentation; keep the original data frame for analysis and saving |
 
-## 19. What comes next?
+## 20. What comes next?
 
 You now have a clean beginner workflow:
 
@@ -565,3 +947,19 @@ A natural next article would focus on choosing statistical tests more carefully,
 - parametric vs non-parametric tests;
 - confidence intervals;
 - simple linear and logistic regression.
+
+
+
+## Appendix
+
+You can download the files used in this article here:
+
+<ol>
+
+<li><a href="https://github.com/Ziyao-Geng/RISE-Data-Science-Articles/tree/main/article_03_descriptive_statistics_table1" target="_blank">View all the files used to create this article on GitHub</a></li>
+
+<li><a href="data/rise_sample_health_data_cleaned.csv" download>Download the sample cleaned health dataset used to create the outputs</a></li>
+
+<li><a href="article_03_descriptive_statistics_and_table1.qmd" download>Download the Quarto file used to create this article</a></li>
+
+</ol>

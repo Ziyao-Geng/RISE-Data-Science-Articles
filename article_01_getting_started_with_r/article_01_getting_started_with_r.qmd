@@ -1,7 +1,7 @@
 ---
 title: "Getting Started with R for Medical Research"
 subtitle: "A beginner's guide to RStudio, Quarto, and sample health datasets"
-author: "RISE Education Team"
+author: "Ziyao Geng, RISE Education Team"
 format:
   html:
     toc: true
@@ -511,9 +511,15 @@ In the next article, we will use a messy version of the same dataset and learn h
 
 
 ## Appendix
-1. [Download rise_sample_health_data.csv](data/rise_sample_health_data.csv)
-2. [Download the QMD file used to create this article](article_01_getting_started_with_r.qmd)
 
+You can download the files used in this article here:
+
+
+<ol>
+  <li><a href="https://github.com/Ziyao-Geng/RISE-Data-Science-Articles/tree/main/article_01_getting_started_with_r" target="_blank"> View all the files used to create this article on GitHub</a></li>
+  <li><a href="data/rise_sample_health_data.csv" download>Download the sample health dataset</a></li>
+  <li><a href="article_01_getting_started_with_r.qmd" download>Download the Quarto file used to create this article</a></li>
+</ol>
 
 
 

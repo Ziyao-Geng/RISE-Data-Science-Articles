@@ -1,1 +1,0 @@
-{"frames":[],"message":"Error in ggplot(health_data, aes(x = bmi)) : \n  could not find function \"ggplot\"\n"}
